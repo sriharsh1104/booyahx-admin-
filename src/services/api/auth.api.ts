@@ -1,9 +1,12 @@
 import apiClient from './client';
 import type { LoginRequest, AuthResponse } from '../types/api.types';
+import { store } from '../../store/store';
+import { selectRefreshToken } from '../../store/slices/authSlice';
 
 export const authApi = {
   /**
    * Login admin user
+   * Note: Redux state will be updated by the component calling this
    */
   login: async (data: LoginRequest): Promise<AuthResponse> => {
     const response = await apiClient.post<{ data: AuthResponse }>('/api/auth/login', data);
@@ -11,16 +14,8 @@ export const authApi = {
     // API returns { status, success, message, data: { accessToken, refreshToken, user } }
     const authData = response.data.data;
     
-    // Store accessToken in localStorage
-    if (authData.accessToken) {
-      localStorage.setItem('auth_token', authData.accessToken);
-    } else {
+    if (!authData.accessToken) {
       throw new Error('Access token not received from server');
-    }
-    
-    // Optionally store refreshToken if provided
-    if (authData.refreshToken) {
-      localStorage.setItem('refresh_token', authData.refreshToken);
     }
     
     return authData;
@@ -28,11 +23,12 @@ export const authApi = {
 
   /**
    * Logout user
-   * Note: If backend logout endpoint doesn't exist, logout will still work client-side
+   * Note: Redux state will be updated by the component calling this
    */
   logout: async (): Promise<void> => {
-    // Get refresh token before clearing localStorage
-    const refreshToken = localStorage.getItem('refresh_token');
+    // Get refresh token from Redux store
+    const state = store.getState();
+    const refreshToken:any = selectRefreshToken(state as any);
     
     try {
       // Send refresh token in request body if available
@@ -48,12 +44,8 @@ export const authApi = {
         console.warn('Logout API call failed:', error?.message || 'Unknown error');
       }
       // Continue with logout even if API call fails
-    } finally {
-      // Clear tokens and user data from localStorage
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user');
     }
+    // Note: Redux state will be cleared by the component
   },
 
   /**
@@ -62,13 +54,6 @@ export const authApi = {
   getProfile: async (): Promise<AuthResponse['user']> => {
     const response = await apiClient.get<AuthResponse['user']>('/api/auth/profile');
     return response.data;
-  },
-
-  /**
-   * Check if user is authenticated
-   */
-  isAuthenticated: (): boolean => {
-    return !!localStorage.getItem('auth_token');
   },
 };
 

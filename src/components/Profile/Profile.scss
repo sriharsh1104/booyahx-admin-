@@ -1,0 +1,89 @@
+@use 'sass:color';
+@use '../../assets/styles/variables' as *;
+@use '../../assets/styles/mixins' as *;
+
+.profile-container {
+  min-height: 100vh;
+  background-color: $background-color;
+}
+
+.profile-header {
+  @include flex-between;
+  padding: $spacing-xl $spacing-lg;
+  background-color: color.adjust($background-color, $lightness: -2%);
+  border-bottom: 1px solid $border-color;
+
+  .header-left {
+    @include flex-center;
+    gap: $spacing-md;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: $text-color;
+    margin: 0;
+  }
+}
+
+.profile-content {
+  padding: $spacing-xl;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.profile-card {
+  @include card;
+  @include flex-column;
+  gap: $spacing-md;
+  max-width: 600px;
+  width: 100%;
+}
+
+.card-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: $text-color;
+  margin-bottom: $spacing-sm;
+}
+
+.profile-details {
+  @include flex-column;
+  gap: $spacing-md;
+}
+
+.profile-item {
+  @include flex-between;
+  padding: $spacing-sm 0;
+  border-bottom: 1px solid $border-color;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.profile-label {
+  color: $text-secondary;
+  font-weight: 500;
+}
+
+.profile-value {
+  color: $text-color;
+  font-weight: 600;
+
+  &.verified {
+    color: $success-color;
+  }
+
+  &.not-verified {
+    color: $error-color;
+  }
+}
+
+.loading {
+  color: $text-secondary;
+  padding: $spacing-md;
+  text-align: center;
+}
+

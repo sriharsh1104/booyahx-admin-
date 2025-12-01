@@ -152,44 +152,22 @@
   background-color: color.adjust($background-color, $lightness: -2%);
   border-bottom: 1px solid $border-color;
 
+  .header-left {
+    @include flex-center;
+    gap: $spacing-md;
+  }
+
   h1 {
     font-size: 1.8rem;
     font-weight: 700;
     color: $text-color;
+    margin: 0;
   }
 }
 
 .header-actions {
   @include flex-center;
   gap: $spacing-md;
-}
-
-.refresh-button {
-  @include button-secondary;
-  padding: $spacing-sm;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-
-  svg {
-    transition: transform $transition-normal;
-  }
-
-  .spinning {
-    animation: spin 1s linear infinite;
-  }
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .settings-dropdown {
@@ -318,53 +296,6 @@
   color: $text-secondary;
   font-size: 0.9rem;
   line-height: 1.6;
-}
-
-.health-status {
-  @include flex-column;
-  gap: $spacing-md;
-}
-
-.status-item {
-  @include flex-between;
-  padding: $spacing-sm 0;
-  border-bottom: 1px solid $border-color;
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.status-label {
-  color: $text-secondary;
-  font-weight: 500;
-}
-
-.status-value {
-  color: $text-color;
-  font-weight: 600;
-
-  &.success {
-    color: $success-color;
-  }
-
-  &.error {
-    color: $error-color;
-  }
-}
-
-.loading {
-  color: $text-secondary;
-  padding: $spacing-md;
-  text-align: center;
-}
-
-.error {
-  color: $error-color;
-  padding: $spacing-md;
-  background-color: rgba($error-color, 0.1);
-  border-radius: $border-radius-md;
-  border: 1px solid $error-color;
 }
 
 // Responsive

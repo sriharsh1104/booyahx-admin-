@@ -1,6 +1,7 @@
 @use 'sass:color';
 @use './variables' as *;
 @use './mixins' as *;
+@use './theme' as *;
 
 * {
   margin: 0;
@@ -14,9 +15,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: $background-color;
-  color: $text-color;
+  background-color: var(--background-color);
+  color: var(--text-color);
   line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root {

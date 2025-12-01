@@ -1,13 +1,14 @@
 import { Navigate } from 'react-router-dom';
-import { authApi } from '@services/api';
 import { ROUTES } from '@utils/constants';
+import { useAppSelector } from '@store/hooks';
+import { selectIsAuthenticated } from '@store/slices/authSlice';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const isAuthenticated = authApi.isAuthenticated();
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
   if (!isAuthenticated) {
     return <Navigate to={ROUTES.LOGIN} replace />;

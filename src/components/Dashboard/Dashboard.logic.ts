@@ -1,57 +1,53 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authApi, healthApi } from '@services/api';
-import { useApi } from '@hooks/useApi';
-import type { HealthResponse, User } from '@services/types/api.types';
+import { authApi } from '@services/api';
 import { ROUTES } from '@utils/constants';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { selectUser, selectIsAuthenticated, setUser, logout } from '@store/slices/authSlice';
 
 export const useDashboardLogic = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-
-  // Health check API call
-  const {
-    data: healthData,
-    loading: healthLoading,
-    error: healthError,
-    execute: checkHealth,
-  } = useApi<HealthResponse>(healthApi.checkHealth);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   useEffect(() => {
-    // Check authentication
-    if (!authApi.isAuthenticated()) {
+    // Check authentication from Redux
+    if (!isAuthenticated) {
       navigate(ROUTES.LOGIN);
       return;
     }
 
-    // Load user data
+    // Load user data if not already in Redux
     const loadUser = async () => {
+      if (user) {
+        // User already in Redux, no need to fetch
+        return;
+      }
+
       try {
         const userData = await authApi.getProfile();
-        setUser(userData);
+        dispatch(setUser(userData));
       } catch (error) {
         console.error('Failed to load user profile:', error);
-        // If profile fetch fails, try to get from localStorage
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        }
+        // User data will remain from Redux state (loaded from localStorage on init)
       }
     };
 
     loadUser();
-    checkHealth();
-  }, [navigate, checkHealth]);
+  }, [navigate, isAuthenticated, user, dispatch]);
 
   const handleLogoutConfirm = async () => {
     try {
       await authApi.logout();
-      navigate(ROUTES.LOGIN, { replace: true });
     } catch (error) {
       console.error('Logout error:', error);
-      // Navigate anyway even if API call fails
+    } finally {
+      // Clear Redux state (this also clears localStorage)
+      dispatch(logout());
       navigate(ROUTES.LOGIN, { replace: true });
     }
   };
@@ -63,14 +59,12 @@ export const useDashboardLogic = () => {
   return {
     user,
     sidebarOpen,
-    healthData,
-    healthLoading,
-    healthError,
     toggleSidebar,
-    checkHealth,
     showLogoutModal,
     setShowLogoutModal,
     handleLogoutConfirm,
+    showSettingsModal,
+    setShowSettingsModal,
   };
 };
 

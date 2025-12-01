@@ -1,0 +1,28 @@
+@use '../../assets/styles/variables' as *;
+@use '../../assets/styles/mixins' as *;
+
+.back-button {
+  @include button-secondary;
+  @include flex-center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  font-size: 0.9rem;
+  border-radius: $border-radius-md;
+
+  svg {
+    transition: transform $transition-fast;
+  }
+
+  &:hover {
+    svg {
+      transform: translateX(-2px);
+    }
+  }
+
+  &:active {
+    svg {
+      transform: translateX(0);
+    }
+  }
+}
+

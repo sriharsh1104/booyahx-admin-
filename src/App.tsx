@@ -2,15 +2,19 @@ import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from '@components/common/ProtectedRoute';
 import Loading from '@components/common/Loading';
+import GlobalLoader from '@components/common/GlobalLoader';
 import { ROUTES } from '@utils/constants';
 
 // Code splitting with lazy loading
 const Login = lazy(() => import('@components/Auth/Login/Login'));
 const Dashboard = lazy(() => import('@components/Dashboard/Dashboard'));
+const HealthStatus = lazy(() => import('@components/HealthStatus/HealthStatus'));
+const Profile = lazy(() => import('@components/Profile/Profile'));
 
 function App() {
   return (
     <BrowserRouter>
+      <GlobalLoader />
       <Suspense fallback={<Loading />}>
         <Routes>
           <Route path={ROUTES.LOGIN} element={<Login />} />
@@ -19,6 +23,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTES.HEALTH}
+            element={
+              <ProtectedRoute>
+                <HealthStatus />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTES.PROFILE}
+            element={
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             }
           />

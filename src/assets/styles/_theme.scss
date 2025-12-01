@@ -1,0 +1,29 @@
+@use 'sass:color';
+
+// Light Theme Variables
+:root[data-theme='light'] {
+  --primary-color: #85ea2d;
+  --secondary-color: #000;
+  --background-color: #ffffff;
+  --text-color: #1a1a1a;
+  --text-secondary: #666666;
+  --border-color: #e0e0e0;
+  --error-color: #ff4444;
+  --success-color: #44ff44;
+  --warning-color: #ffaa00;
+}
+
+// Dark Theme Variables (default)
+:root[data-theme='dark'],
+:root {
+  --primary-color: #85ea2d;
+  --secondary-color: #fff;
+  --background-color: #1a1a1a;
+  --text-color: #ffffff;
+  --text-secondary: #b0b0b0;
+  --border-color: #333333;
+  --error-color: #ff4444;
+  --success-color: #44ff44;
+  --warning-color: #ffaa00;
+}
+

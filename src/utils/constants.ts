@@ -5,6 +5,7 @@ export const ROUTES = {
   LOGIN: '/login',
   DASHBOARD: '/dashboard',
   HEALTH: '/health',
+  PROFILE: '/profile',
 } as const;
 
 export const STORAGE_KEYS = {

@@ -3,9 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { authApi } from '@services/api';
 import type { LoginRequest, AuthResponse, ApiError } from '@services/types/api.types';
 import { ROUTES } from '@utils/constants';
+import { useAppDispatch } from '@store/hooks';
+import { setCredentials } from '@store/slices/authSlice';
 
 export const useLoginLogic = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [formData, setFormData] = useState<LoginRequest>({
     email: '',
     password: '',
@@ -51,19 +54,20 @@ export const useLoginLogic = () => {
     try {
       const response: AuthResponse = await authApi.login(formData);
       
-      // Verify token is stored before navigation
-      const token = localStorage.getItem('auth_token');
-      if (!token) {
+      // Verify token is received
+      if (!response.accessToken) {
         setError('Authentication failed. Token not received.');
         return;
       }
 
-      // Store user data if needed
-      if (response.user) {
-        localStorage.setItem('user', JSON.stringify(response.user));
-      }
+      // Store credentials in Redux (this also persists to localStorage)
+      dispatch(setCredentials({
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken,
+        user: response.user,
+      }));
       
-      // Navigate to dashboard after ensuring token is stored
+      // Navigate to dashboard
       navigate(ROUTES.DASHBOARD, { replace: true });
     } catch (err) {
       const apiError = err as ApiError;

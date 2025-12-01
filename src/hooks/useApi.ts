@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { ApiError } from '@services/types/api.types';
 import { getErrorMessage } from '@utils/helpers';
 
@@ -28,15 +28,27 @@ export function useApi<T>(
   const [loading, setLoading] = useState<boolean>(immediate);
   const [error, setError] = useState<ApiError | null>(null);
 
+  // Store apiFunction in ref to avoid recreating execute on every render
+  const apiFunctionRef = useRef(apiFunction);
+  const onSuccessRef = useRef(onSuccess);
+  const onErrorRef = useRef(onError);
+
+  // Update refs when they change
+  useEffect(() => {
+    apiFunctionRef.current = apiFunction;
+    onSuccessRef.current = onSuccess;
+    onErrorRef.current = onError;
+  }, [apiFunction, onSuccess, onError]);
+
   const execute = useCallback(
     async (...args: unknown[]) => {
       setLoading(true);
       setError(null);
       
       try {
-        const result = await apiFunction(...args);
+        const result = await apiFunctionRef.current(...args);
         setData(result);
-        onSuccess?.(result);
+        onSuccessRef.current?.(result);
       } catch (err) {
         const apiError: ApiError = {
           message: getErrorMessage(err),
@@ -44,12 +56,12 @@ export function useApi<T>(
           errors: (err as ApiError)?.errors,
         };
         setError(apiError);
-        onError?.(apiError);
+        onErrorRef.current?.(apiError);
       } finally {
         setLoading(false);
       }
     },
-    [apiFunction, onSuccess, onError]
+    [] // Empty deps - using refs so execute function is stable
   );
 
   const reset = useCallback(() => {

@@ -1,20 +1,22 @@
 import { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDashboardLogic } from './Dashboard.logic';
 import ConfirmationModal from '@components/common/ConfirmationModal';
+import SettingsModal from '@components/common/SettingsModal';
+import { ROUTES } from '@utils/constants';
 import './Dashboard.scss';
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
   const {
     user,
     sidebarOpen,
-    healthData,
-    healthLoading,
-    healthError,
     toggleSidebar,
-    checkHealth,
     showLogoutModal,
     setShowLogoutModal,
     handleLogoutConfirm,
+    showSettingsModal,
+    setShowSettingsModal,
   } = useDashboardLogic();
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -49,13 +51,9 @@ const Dashboard: React.FC = () => {
         </div>
 
         <nav className="sidebar-nav">
-          <a href="#dashboard" className="nav-item active">
+          <a href="/dashboard" className="nav-item active">
             <span className="nav-icon">📊</span>
             {sidebarOpen && <span className="nav-text">Dashboard</span>}
-          </a>
-          <a href="#health" className="nav-item">
-            <span className="nav-icon">❤️</span>
-            {sidebarOpen && <span className="nav-text">Health</span>}
           </a>
         </nav>
 
@@ -74,26 +72,6 @@ const Dashboard: React.FC = () => {
         <header className="dashboard-header">
           <h1>Dashboard</h1>
           <div className="header-actions">
-            <button 
-              className="refresh-button" 
-              onClick={checkHealth} 
-              disabled={healthLoading}
-              aria-label="Refresh"
-              title="Refresh"
-            >
-              <svg 
-                width="20" 
-                height="20" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2"
-                className={healthLoading ? 'spinning' : ''}
-              >
-                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-              </svg>
-            </button>
-            
             <div className="settings-dropdown" ref={dropdownRef}>
               <button 
                 className="settings-button"
@@ -114,6 +92,39 @@ const Dashboard: React.FC = () => {
                 <button 
                   className="dropdown-item" 
                   onClick={() => {
+                    const dropdown = dropdownRef.current?.querySelector('.dropdown-menu');
+                    dropdown?.classList.remove('open');
+                    navigate(ROUTES.PROFILE);
+                  }}
+                >
+                  <span className="dropdown-icon">👤</span>
+                  <span>Profile</span>
+                </button>
+                <button 
+                  className="dropdown-item" 
+                  onClick={() => {
+                    const dropdown = dropdownRef.current?.querySelector('.dropdown-menu');
+                    dropdown?.classList.remove('open');
+                    navigate(ROUTES.HEALTH);
+                  }}
+                >
+                  <span className="dropdown-icon">❤️</span>
+                  <span>Health Status</span>
+                </button>
+                <button 
+                  className="dropdown-item" 
+                  onClick={() => {
+                    const dropdown = dropdownRef.current?.querySelector('.dropdown-menu');
+                    dropdown?.classList.remove('open');
+                    setShowSettingsModal(true);
+                  }}
+                >
+                  <span className="dropdown-icon">⚙️</span>
+                  <span>Settings</span>
+                </button>
+                <button 
+                  className="dropdown-item" 
+                  onClick={() => {
                     setShowLogoutModal(true);
                     const dropdown = dropdownRef.current?.querySelector('.dropdown-menu');
                     dropdown?.classList.remove('open');
@@ -122,54 +133,12 @@ const Dashboard: React.FC = () => {
                   <span className="dropdown-icon">🚪</span>
                   <span>Logout</span>
                 </button>
-                {user && (
-                  <div className="dropdown-item dropdown-item-info">
-                    <span className="dropdown-icon">👤</span>
-                    <div className="dropdown-item-text">
-                      <div className="dropdown-item-name">{user.name || 'Admin'}</div>
-                      <div className="dropdown-item-email">{user.email}</div>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
         </header>
 
         <div className="dashboard-content">
-          {/* Health Status Card */}
-          <div className="dashboard-card">
-            <h2 className="card-title">API Health Status</h2>
-            {healthLoading && <div className="loading">Loading health status...</div>}
-            {healthError && (
-              <div className="error">
-                <strong>Error:</strong> {healthError.message}
-              </div>
-            )}
-            {healthData && (
-              <div className="health-status">
-                <div className="status-item">
-                  <span className="status-label">Status:</span>
-                  <span className={`status-value ${healthData.status === 'ok' ? 'success' : 'error'}`}>
-                    {healthData.status}
-                  </span>
-                </div>
-                {healthData.timestamp && (
-                  <div className="status-item">
-                    <span className="status-label">Last Check:</span>
-                    <span className="status-value">{new Date(healthData.timestamp).toLocaleString()}</span>
-                  </div>
-                )}
-                {healthData.uptime !== undefined && (
-                  <div className="status-item">
-                    <span className="status-label">Uptime:</span>
-                    <span className="status-value">{Math.floor(healthData.uptime / 60)} minutes</span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
           {/* Welcome Card */}
           <div className="dashboard-card">
             <h2 className="card-title">Welcome</h2>
@@ -192,6 +161,12 @@ const Dashboard: React.FC = () => {
         cancelText="No"
         onConfirm={handleLogoutConfirm}
         onCancel={() => setShowLogoutModal(false)}
+      />
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
       />
     </div>
   );
