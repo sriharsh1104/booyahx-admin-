@@ -1,0 +1,257 @@
+@use 'sass:color';
+@use '../../assets/styles/variables' as *;
+@use '../../assets/styles/mixins' as *;
+
+.dashboard-container {
+  @include flex-between;
+  min-height: 100vh;
+  background-color: $background-color;
+}
+
+.dashboard-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  background-color: color.adjust($background-color, $lightness: -3%);
+  border-right: 1px solid $border-color;
+  @include flex-column;
+  transition: width $transition-normal;
+  z-index: 1000;
+  overflow: hidden;
+
+  &.open {
+    width: 250px;
+  }
+
+  &.closed {
+    width: 70px;
+  }
+}
+
+.sidebar-header {
+  @include flex-between;
+  padding: $spacing-lg;
+  border-bottom: 1px solid $border-color;
+  min-height: 70px;
+}
+
+.sidebar-logo {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: $primary-color;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity $transition-fast;
+
+  .closed & {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+  }
+}
+
+.sidebar-toggle {
+  @include button-secondary;
+  padding: $spacing-xs $spacing-sm;
+  min-width: 32px;
+  font-size: 1.2rem;
+}
+
+.sidebar-nav {
+  @include flex-column;
+  flex: 1;
+  padding: $spacing-md 0;
+  gap: $spacing-xs;
+}
+
+.nav-item {
+  @include flex-between;
+  padding: $spacing-md $spacing-lg;
+  color: $text-secondary;
+  text-decoration: none;
+  transition: all $transition-fast;
+  border-left: 3px solid transparent;
+
+  &:hover {
+    background-color: rgba($primary-color, 0.1);
+    color: $primary-color;
+  }
+
+  &.active {
+    background-color: rgba($primary-color, 0.15);
+    color: $primary-color;
+    border-left-color: $primary-color;
+  }
+}
+
+.nav-icon {
+  font-size: 1.2rem;
+  min-width: 24px;
+}
+
+.nav-text {
+  margin-left: $spacing-md;
+  font-weight: 500;
+  white-space: nowrap;
+
+  .closed & {
+    display: none;
+  }
+}
+
+.sidebar-footer {
+  padding: $spacing-lg;
+  border-top: 1px solid $border-color;
+  @include flex-column;
+  gap: $spacing-md;
+}
+
+.user-info {
+  @include flex-column;
+  gap: $spacing-xs;
+  width: 100%;
+
+  .closed & {
+    display: none;
+  }
+}
+
+.user-email {
+  font-size: 0.9rem;
+  color: $text-color;
+  font-weight: 500;
+}
+
+.user-name {
+  font-size: 0.8rem;
+  color: $text-secondary;
+}
+
+.logout-button {
+  @include button-secondary;
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  font-size: 0.9rem;
+}
+
+.dashboard-main {
+  flex: 1;
+  margin-left: 250px;
+  transition: margin-left $transition-normal;
+  min-height: 100vh;
+
+  .closed ~ & {
+    margin-left: 70px;
+  }
+}
+
+.dashboard-header {
+  @include flex-between;
+  padding: $spacing-xl $spacing-lg;
+  background-color: color.adjust($background-color, $lightness: -2%);
+  border-bottom: 1px solid $border-color;
+
+  h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: $text-color;
+  }
+}
+
+.header-actions {
+  @include flex-center;
+  gap: $spacing-md;
+}
+
+.refresh-button {
+  @include button-secondary;
+  padding: $spacing-sm $spacing-md;
+  font-size: 0.9rem;
+}
+
+.dashboard-content {
+  padding: $spacing-xl;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: $spacing-lg;
+}
+
+.dashboard-card {
+  @include card;
+  @include flex-column;
+  gap: $spacing-md;
+}
+
+.card-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: $text-color;
+  margin-bottom: $spacing-sm;
+}
+
+.card-content {
+  color: $text-color;
+  line-height: 1.6;
+}
+
+.card-content-secondary {
+  color: $text-secondary;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.health-status {
+  @include flex-column;
+  gap: $spacing-md;
+}
+
+.status-item {
+  @include flex-between;
+  padding: $spacing-sm 0;
+  border-bottom: 1px solid $border-color;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.status-label {
+  color: $text-secondary;
+  font-weight: 500;
+}
+
+.status-value {
+  color: $text-color;
+  font-weight: 600;
+
+  &.success {
+    color: $success-color;
+  }
+
+  &.error {
+    color: $error-color;
+  }
+}
+
+.loading {
+  color: $text-secondary;
+  padding: $spacing-md;
+  text-align: center;
+}
+
+.error {
+  color: $error-color;
+  padding: $spacing-md;
+  background-color: rgba($error-color, 0.1);
+  border-radius: $border-radius-md;
+  border: 1px solid $error-color;
+}
+
+// Responsive
+@include respond-to(md) {
+  .dashboard-content {
+    grid-template-columns: 1fr;
+  }
+}
+
