@@ -31,12 +31,20 @@ export const authApi = {
    * Note: If backend logout endpoint doesn't exist, logout will still work client-side
    */
   logout: async (): Promise<void> => {
+    // Get refresh token before clearing localStorage
+    const refreshToken = localStorage.getItem('refresh_token');
+    
     try {
-      await apiClient.post('/api/auth/logout');
+      // Send refresh token in request body if available
+      if (refreshToken) {
+        await apiClient.post('/api/auth/logout', { refreshToken });
+      } else {
+        await apiClient.post('/api/auth/logout');
+      }
     } catch (error: any) {
       // Silently ignore 404 or route not found errors
       // Logout endpoint might not exist on backend, which is fine
-      if (error?.response?.status !== 404 && error?.response?.status !== 400) {
+      if (error?.response?.status !== 404) {
         console.warn('Logout API call failed:', error?.message || 'Unknown error');
       }
       // Continue with logout even if API call fails
