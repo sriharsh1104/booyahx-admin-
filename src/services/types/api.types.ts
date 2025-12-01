@@ -18,15 +18,17 @@ export interface LoginRequest {
 }
 
 export interface AuthResponse {
-  token: string;
+  accessToken: string;
+  refreshToken?: string;
   user: User;
 }
 
 export interface User {
-  id: string;
+  userId: string;
   email: string;
   name?: string;
   role?: string;
+  isEmailVerified?: boolean;
 }
 
 // Health Check Types

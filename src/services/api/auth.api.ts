@@ -6,19 +6,46 @@ export const authApi = {
    * Login admin user
    */
   login: async (data: LoginRequest): Promise<AuthResponse> => {
-    const response = await apiClient.post<AuthResponse>('/api/auth/login', data);
-    // Store token in localStorage
-    if (response.data.token) {
-      localStorage.setItem('auth_token', response.data.token);
+    const response = await apiClient.post<{ data: AuthResponse }>('/api/auth/login', data);
+    
+    // API returns { status, success, message, data: { accessToken, refreshToken, user } }
+    const authData = response.data.data;
+    
+    // Store accessToken in localStorage
+    if (authData.accessToken) {
+      localStorage.setItem('auth_token', authData.accessToken);
+    } else {
+      throw new Error('Access token not received from server');
     }
-    return response.data;
+    
+    // Optionally store refreshToken if provided
+    if (authData.refreshToken) {
+      localStorage.setItem('refresh_token', authData.refreshToken);
+    }
+    
+    return authData;
   },
 
   /**
    * Logout user
+   * Note: If backend logout endpoint doesn't exist, logout will still work client-side
    */
-  logout: (): void => {
-    localStorage.removeItem('auth_token');
+  logout: async (): Promise<void> => {
+    try {
+      await apiClient.post('/api/auth/logout');
+    } catch (error: any) {
+      // Silently ignore 404 or route not found errors
+      // Logout endpoint might not exist on backend, which is fine
+      if (error?.response?.status !== 404 && error?.response?.status !== 400) {
+        console.warn('Logout API call failed:', error?.message || 'Unknown error');
+      }
+      // Continue with logout even if API call fails
+    } finally {
+      // Clear tokens and user data from localStorage
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+    }
   },
 
   /**

@@ -1,4 +1,6 @@
+import { useEffect, useRef } from 'react';
 import { useDashboardLogic } from './Dashboard.logic';
+import ConfirmationModal from '@components/common/ConfirmationModal';
 import './Dashboard.scss';
 
 const Dashboard: React.FC = () => {
@@ -8,10 +10,28 @@ const Dashboard: React.FC = () => {
     healthData,
     healthLoading,
     healthError,
-    handleLogout,
     toggleSidebar,
     checkHealth,
+    showLogoutModal,
+    setShowLogoutModal,
+    handleLogoutConfirm,
   } = useDashboardLogic();
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        const dropdown = dropdownRef.current.querySelector('.dropdown-menu');
+        dropdown?.classList.remove('open');
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="dashboard-container">
@@ -46,9 +66,6 @@ const Dashboard: React.FC = () => {
               {user.name && <div className="user-name">{user.name}</div>}
             </div>
           )}
-          <button className="logout-button" onClick={handleLogout}>
-            {sidebarOpen ? 'Logout' : '🚪'}
-          </button>
         </div>
       </aside>
 
@@ -57,9 +74,65 @@ const Dashboard: React.FC = () => {
         <header className="dashboard-header">
           <h1>Dashboard</h1>
           <div className="header-actions">
-            <button className="refresh-button" onClick={checkHealth} disabled={healthLoading}>
-              {healthLoading ? 'Refreshing...' : '🔄 Refresh'}
+            <button 
+              className="refresh-button" 
+              onClick={checkHealth} 
+              disabled={healthLoading}
+              aria-label="Refresh"
+              title="Refresh"
+            >
+              <svg 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
+                className={healthLoading ? 'spinning' : ''}
+              >
+                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+              </svg>
             </button>
+            
+            <div className="settings-dropdown" ref={dropdownRef}>
+              <button 
+                className="settings-button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const dropdown = e.currentTarget.nextElementSibling as HTMLElement;
+                  dropdown?.classList.toggle('open');
+                }}
+                aria-label="Settings"
+                title="Settings"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
+                </svg>
+              </button>
+              <div className="dropdown-menu" onClick={(e) => e.stopPropagation()}>
+                <button 
+                  className="dropdown-item" 
+                  onClick={() => {
+                    setShowLogoutModal(true);
+                    const dropdown = dropdownRef.current?.querySelector('.dropdown-menu');
+                    dropdown?.classList.remove('open');
+                  }}
+                >
+                  <span className="dropdown-icon">🚪</span>
+                  <span>Logout</span>
+                </button>
+                {user && (
+                  <div className="dropdown-item dropdown-item-info">
+                    <span className="dropdown-icon">👤</span>
+                    <div className="dropdown-item-text">
+                      <div className="dropdown-item-name">{user.name || 'Admin'}</div>
+                      <div className="dropdown-item-email">{user.email}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </header>
 
@@ -109,6 +182,17 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </main>
+
+      {/* Logout Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showLogoutModal}
+        title="Logout"
+        message="Are you sure you want to logout?"
+        confirmText="Yes"
+        cancelText="No"
+        onConfirm={handleLogoutConfirm}
+        onCancel={() => setShowLogoutModal(false)}
+      />
     </div>
   );
 };

@@ -9,6 +9,7 @@ export const useDashboardLogic = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // Health check API call
   const {
@@ -44,9 +45,15 @@ export const useDashboardLogic = () => {
     checkHealth();
   }, [navigate, checkHealth]);
 
-  const handleLogout = () => {
-    authApi.logout();
-    navigate(ROUTES.LOGIN);
+  const handleLogoutConfirm = async () => {
+    try {
+      await authApi.logout();
+      navigate(ROUTES.LOGIN, { replace: true });
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Navigate anyway even if API call fails
+      navigate(ROUTES.LOGIN, { replace: true });
+    }
   };
 
   const toggleSidebar = () => {
@@ -59,9 +66,11 @@ export const useDashboardLogic = () => {
     healthData,
     healthLoading,
     healthError,
-    handleLogout,
     toggleSidebar,
     checkHealth,
+    showLogoutModal,
+    setShowLogoutModal,
+    handleLogoutConfirm,
   };
 };
 

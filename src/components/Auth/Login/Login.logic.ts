@@ -50,12 +50,21 @@ export const useLoginLogic = () => {
     setLoading(true);
     try {
       const response: AuthResponse = await authApi.login(formData);
+      
+      // Verify token is stored before navigation
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        setError('Authentication failed. Token not received.');
+        return;
+      }
+
       // Store user data if needed
       if (response.user) {
         localStorage.setItem('user', JSON.stringify(response.user));
       }
-      // Navigate to dashboard
-      navigate(ROUTES.DASHBOARD);
+      
+      // Navigate to dashboard after ensuring token is stored
+      navigate(ROUTES.DASHBOARD, { replace: true });
     } catch (err) {
       const apiError = err as ApiError;
       setError(apiError.message || 'Login failed. Please try again.');
