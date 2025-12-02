@@ -19,6 +19,15 @@ const Dashboard: React.FC = () => {
     handleLogoutConfirm,
     showSettingsModal,
     setShowSettingsModal,
+    users,
+    usersLoading,
+    usersError,
+    pagination,
+    roleFilter,
+    handleRoleFilterChange,
+    userQuery,
+    handleQueryChange,
+    handleQueryUsers,
   } = useDashboardLogic();
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -144,7 +153,7 @@ const Dashboard: React.FC = () => {
                 >
                   <span className="dropdown-icon">🚪</span>
                   <span>Logout</span>
-                </button>
+            </button>
               </div>
             </div>
           </div>
@@ -160,6 +169,109 @@ const Dashboard: React.FC = () => {
             <p className="card-content-secondary">
               Manage your application from this centralized dashboard.
             </p>
+          </div>
+
+          {/* Users List Card */}
+          <div className="dashboard-card">
+            <div className="card-header-with-filters">
+              <h2 className="card-title">Users</h2>
+              <div className="role-filters">
+                <button
+                  className={`filter-button ${roleFilter === 'all' ? 'active' : ''}`}
+                  onClick={() => handleRoleFilterChange('all')}
+                  disabled={usersLoading}
+                >
+                  All
+                </button>
+                <button
+                  className={`filter-button ${roleFilter === 'admin' ? 'active' : ''}`}
+                  onClick={() => handleRoleFilterChange('admin')}
+                  disabled={usersLoading}
+                >
+                  Admin
+                </button>
+                <button
+                  className={`filter-button ${roleFilter === 'host' ? 'active' : ''}`}
+                  onClick={() => handleRoleFilterChange('host')}
+                  disabled={usersLoading}
+                >
+                  Host
+                </button>
+                <button
+                  className={`filter-button ${roleFilter === 'user' ? 'active' : ''}`}
+                  onClick={() => handleRoleFilterChange('user')}
+                  disabled={usersLoading}
+                >
+                  User
+                </button>
+              </div>
+            </div>
+            <div className="user-query-section">
+              <div className="query-input-group">
+                <input
+                  type="text"
+                  className="query-input"
+                  placeholder="Search users by name or email..."
+                  value={userQuery}
+                  onChange={(e) => handleQueryChange(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleQueryUsers();
+                    }
+                  }}
+                  disabled={usersLoading}
+                />
+                <button
+                  className="query-button"
+                  onClick={handleQueryUsers}
+                  disabled={usersLoading}
+                >
+                  🔍 Query
+                </button>
+              </div>
+            </div>
+            {usersLoading ? (
+              <div className="users-loading">
+                <p>Loading users...</p>
+              </div>
+            ) : usersError ? (
+              <div className="users-error">
+                <p>{usersError}</p>
+              </div>
+            ) : users.length > 0 ? (
+              <div className="users-list">
+                <div className="users-count-header">
+                  <span className="users-count-text">
+                    {pagination ? (
+                      <>Total: {pagination.total} users</>
+                    ) : (
+                      <>Total: {users.length} users</>
+                    )}
+                  </span>
+                </div>
+                <div className="users-cards-container">
+                  {users.map((adminUser, index) => (
+                    <div key={adminUser.userId || adminUser._id} className="user-card">
+                      <div className="user-card-number">{index + 1}</div>
+                      <div className="user-card-content">
+                        <div className="user-name">
+                          <span className="user-label">Name:</span>
+                          <span className="user-value">{adminUser.name || 'N/A'}</span>
+                        </div>
+                        <div className="user-email">
+                          <span className="user-label">Email:</span>
+                          <span className="user-value">{adminUser.email}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="users-empty">
+                <p>No users found.</p>
+              </div>
+            )}
           </div>
         </div>
       </main>
