@@ -3,6 +3,7 @@ import {
   hostApplicationsApi, 
   type HostApplication, 
   type HostWithAssignments,
+  type HostAssignment,
   type Tournament 
 } from '@services/api';
 import ConfirmationModal from '@components/common/ConfirmationModal';
@@ -466,11 +467,11 @@ const HostApplications: React.FC<HostApplicationsProps> = ({
               <p>
                 <strong>Tournament Time:</strong> {tournament.startTime} on {formatDate(tournament.date)}
               </p>
-              {hostToAssign.conflictingTournaments && hostToAssign.conflictingTournaments.length > 0 && (
+              {hostToAssign.timeConflictDetails && hostToAssign.timeConflictDetails.length > 0 && (
                 <div>
                   <p><strong>Conflicting Assignments:</strong></p>
                   <ul>
-                    {hostToAssign.conflictingTournaments.map((conflict, idx) => (
+                    {hostToAssign.timeConflictDetails.map((conflict: HostAssignment, idx: number) => (
                       <li key={idx}>
                         {conflict.tournamentGame || 'N/A'} - {conflict.tournamentMode || 'N/A'} ({conflict.tournamentSubMode || 'N/A'}) 
                         at {conflict.tournamentStartTime} on {formatDate(conflict.tournamentDate)}

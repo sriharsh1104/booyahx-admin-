@@ -1,9 +1,10 @@
+import React from 'react';
 import './ConfirmationModal.scss';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
   title: string;
-  message: string;
+  message: string | React.ReactNode;
   confirmText?: string;
   cancelText?: string;
   onConfirm: () => void;
@@ -25,7 +26,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     <div className="modal-overlay" onClick={onCancel}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <h3 className="modal-title">{title}</h3>
-        <p className="modal-message">{message}</p>
+        <div className="modal-message">{message}</div>
         <div className="modal-actions">
           <button className="modal-button modal-button-cancel" onClick={onCancel}>
             {cancelText}
