@@ -13,6 +13,8 @@
   padding: $spacing-md;
   position: relative;
   overflow: hidden;
+  perspective: 1200px;
+  perspective-origin: center center;
 
   // Animated background elements
   &::before {
@@ -38,6 +40,207 @@
   }
 }
 
+// Gaming side containers
+.gaming-side {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 30%;
+  z-index: 0;
+  pointer-events: none;
+  transform-style: preserve-3d;
+
+  &.gaming-side-left {
+    left: 0;
+  }
+
+  &.gaming-side-right {
+    right: 0;
+  }
+}
+
+// Glowing orbs
+.gaming-orb {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--primary-color-rgb), 0.6) 0%, rgba(var(--primary-color-rgb), 0.2) 50%, transparent 100%);
+  box-shadow: 0 0 40px rgba(var(--primary-color-rgb), 0.5), 
+              0 0 80px rgba(var(--primary-color-rgb), 0.3),
+              inset 0 0 20px rgba(var(--primary-color-rgb), 0.4);
+  filter: blur(1px);
+  transform-style: preserve-3d;
+
+  &.gaming-orb-1 {
+    width: 120px;
+    height: 120px;
+    top: 15%;
+    left: 10%;
+  }
+
+  &.gaming-orb-2 {
+    width: 80px;
+    height: 80px;
+    top: 60%;
+    left: 20%;
+  }
+
+  &.gaming-orb-3 {
+    width: 100px;
+    height: 100px;
+    top: 25%;
+    right: 15%;
+  }
+
+  &.gaming-orb-4 {
+    width: 90px;
+    height: 90px;
+    top: 65%;
+    right: 10%;
+  }
+}
+
+// Gaming geometric elements
+.gaming-element {
+  position: absolute;
+  border: 2px solid rgba(var(--primary-color-rgb), 0.6);
+  box-shadow: 0 0 20px rgba(var(--primary-color-rgb), 0.4),
+              inset 0 0 10px rgba(var(--primary-color-rgb), 0.2);
+  background: rgba(var(--primary-color-rgb), 0.1);
+  backdrop-filter: blur(5px);
+  transform-style: preserve-3d;
+
+  &.gaming-hexagon {
+    width: 60px;
+    height: 60px;
+    clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+
+    &.gaming-hexagon-1 {
+      top: 30%;
+      left: 15%;
+    }
+
+    &.gaming-hexagon-2 {
+      top: 40%;
+      right: 20%;
+    }
+  }
+
+  &.gaming-triangle {
+    width: 0;
+    height: 0;
+    border-left: 30px solid transparent;
+    border-right: 30px solid transparent;
+    border-bottom: 50px solid rgba(var(--primary-color-rgb), 0.3);
+    background: none;
+    border-top: none;
+    box-shadow: 0 0 15px rgba(var(--primary-color-rgb), 0.5);
+
+    &.gaming-triangle-1 {
+      top: 50%;
+      left: 25%;
+    }
+
+    &.gaming-triangle-2 {
+      top: 20%;
+      right: 25%;
+      transform: rotate(180deg);
+    }
+  }
+
+  &.gaming-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+
+    &.gaming-circle-1 {
+      top: 70%;
+      left: 12%;
+    }
+
+    &.gaming-circle-2 {
+      top: 55%;
+      right: 18%;
+    }
+  }
+}
+
+// Energy lines
+.energy-line {
+  position: absolute;
+  width: 2px;
+  height: 150px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(var(--primary-color-rgb), 0.8) 50%,
+    transparent 100%
+  );
+  box-shadow: 0 0 10px rgba(var(--primary-color-rgb), 0.6);
+  transform-style: preserve-3d;
+
+  &.energy-line-1 {
+    top: 10%;
+    left: 30%;
+  }
+
+  &.energy-line-2 {
+    top: 45%;
+    left: 18%;
+  }
+
+  &.energy-line-3 {
+    top: 15%;
+    right: 28%;
+  }
+
+  &.energy-line-4 {
+    top: 50%;
+    right: 15%;
+  }
+}
+
+// Gaming particles
+.gaming-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(var(--primary-color-rgb), 0.8);
+  box-shadow: 0 0 10px rgba(var(--primary-color-rgb), 0.8),
+              0 0 20px rgba(var(--primary-color-rgb), 0.4);
+  transform-style: preserve-3d;
+
+  &.gaming-particle-1 {
+    top: 25%;
+    left: 8%;
+  }
+
+  &.gaming-particle-2 {
+    top: 45%;
+    left: 22%;
+  }
+
+  &.gaming-particle-3 {
+    top: 75%;
+    left: 15%;
+  }
+
+  &.gaming-particle-4 {
+    top: 30%;
+    right: 12%;
+  }
+
+  &.gaming-particle-5 {
+    top: 50%;
+    right: 22%;
+  }
+
+  &.gaming-particle-6 {
+    top: 80%;
+    right: 18%;
+  }
+}
+
 @keyframes rotate {
   from {
     transform: rotate(0deg);
@@ -54,7 +257,7 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(var(--primary-color-rgb), 0.1);
   border: 1px solid rgba(var(--primary-color-rgb), 0.2);
   position: relative;
-  z-index: 1;
+  z-index: 10;
   backdrop-filter: blur(10px);
   background: linear-gradient(135deg, 
     var(--background-color-light) 0%,
@@ -193,6 +396,88 @@
     opacity: 0.7;
     cursor: not-allowed;
     transform: none;
+  }
+}
+
+// Responsive design for gaming elements
+@media (max-width: 1024px) {
+  .gaming-side {
+    width: 25%;
+  }
+
+  .gaming-orb {
+    &.gaming-orb-1, &.gaming-orb-3 {
+      width: 80px;
+      height: 80px;
+    }
+
+    &.gaming-orb-2, &.gaming-orb-4 {
+      width: 60px;
+      height: 60px;
+    }
+  }
+
+  .gaming-element {
+    &.gaming-hexagon {
+      width: 45px;
+      height: 45px;
+    }
+
+    &.gaming-triangle {
+      border-left-width: 20px;
+      border-right-width: 20px;
+      border-bottom-width: 35px;
+    }
+
+    &.gaming-circle {
+      width: 40px;
+      height: 40px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .gaming-side {
+    width: 20%;
+    opacity: 0.6;
+  }
+
+  .gaming-orb {
+    width: 50px !important;
+    height: 50px !important;
+  }
+
+  .gaming-element {
+    &.gaming-hexagon {
+      width: 35px;
+      height: 35px;
+    }
+
+    &.gaming-triangle {
+      border-left-width: 15px;
+      border-right-width: 15px;
+      border-bottom-width: 25px;
+    }
+
+    &.gaming-circle {
+      width: 30px;
+      height: 30px;
+    }
+  }
+
+  .energy-line {
+    height: 100px;
+  }
+
+  .gaming-particle {
+    width: 6px;
+    height: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gaming-side {
+    display: none;
   }
 }
 
