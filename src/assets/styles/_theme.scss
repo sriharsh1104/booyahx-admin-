@@ -1,0 +1,61 @@
+@use 'sass:color';
+
+// Light Theme Variables
+:root[data-theme='light'] {
+  --primary-color: #85ea2d;
+  --primary-color-rgb: 133, 234, 45;
+  --primary-color-light: #a5ff4d;
+  --primary-color-dark: #65ca0d;
+  --secondary-color: #000;
+  --background-color: #ffffff;
+  --background-color-rgb: 255, 255, 255;
+  --background-color-light: #ffffff;
+  --background-color-dark: #f5f5f5;
+  --text-color: #1a1a1a;
+  --text-color-rgb: 26, 26, 26;
+  --text-color-light: #4a4a4a;
+  --text-color-dark: #000000;
+  --text-secondary: #666666;
+  --text-secondary-rgb: 102, 102, 102;
+  --border-color: #e0e0e0;
+  --border-color-rgb: 224, 224, 224;
+  --error-color: #ff4444;
+  --error-color-rgb: 255, 68, 68;
+  --error-color-light: #ff6666;
+  --error-color-dark: #cc2222;
+  --success-color: #44ff44;
+  --success-color-rgb: 68, 255, 68;
+  --warning-color: #ffaa00;
+  --warning-color-rgb: 255, 170, 0;
+}
+
+// Dark Theme Variables (default)
+:root[data-theme='dark'],
+:root {
+  --primary-color: #85ea2d;
+  --primary-color-rgb: 133, 234, 45;
+  --primary-color-light: #a5ff4d;
+  --primary-color-dark: #65ca0d;
+  --secondary-color: #fff;
+  --background-color: #1a1a1a;
+  --background-color-rgb: 26, 26, 26;
+  --background-color-light: #222222;
+  --background-color-dark: #0f0f0f;
+  --text-color: #ffffff;
+  --text-color-rgb: 255, 255, 255;
+  --text-color-light: #ffffff;
+  --text-color-dark: #cccccc;
+  --text-secondary: #b0b0b0;
+  --text-secondary-rgb: 176, 176, 176;
+  --border-color: #333333;
+  --border-color-rgb: 51, 51, 51;
+  --error-color: #ff4444;
+  --error-color-rgb: 255, 68, 68;
+  --error-color-light: #ff6666;
+  --error-color-dark: #cc2222;
+  --success-color: #44ff44;
+  --success-color-rgb: 68, 255, 68;
+  --warning-color: #ffaa00;
+  --warning-color-rgb: 255, 170, 0;
+}
+

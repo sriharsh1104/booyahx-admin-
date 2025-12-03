@@ -1,0 +1,54 @@
+@use '../../assets/styles/variables' as *;
+@use '../../assets/styles/mixins' as *;
+
+.theme-toggle-button {
+  @include button-secondary;
+  padding: $spacing-sm;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all $transition-fast;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(var(--primary-color-rgb), 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.3s ease, height 0.3s ease;
+  }
+
+  &:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+    transform: scale(1.05);
+
+    &::before {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    position: relative;
+    z-index: 1;
+    transition: transform $transition-fast;
+  }
+
+  &:hover svg {
+    transform: rotate(15deg);
+  }
+}
+

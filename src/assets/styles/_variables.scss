@@ -1,0 +1,44 @@
+// Color Variables - Static values for SASS calculations
+// For runtime theme switching, use CSS variables (--primary-color, etc.) directly in component SCSS
+$primary-color-static: #85ea2d;
+$secondary-color-static: #fff;
+$background-color-static: #1a1a1a;
+$text-color-static: #ffffff;
+$text-secondary-static: #b0b0b0;
+$border-color-static: #333333;
+$error-color-static: #ff4444;
+$success-color-static: #44ff44;
+$warning-color-static: #ffaa00;
+
+// CSS Variable names (for reference)
+// Use these in component SCSS: var(--primary-color), var(--background-color), etc.
+
+// Spacing
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+$spacing-xxl: 3rem;
+
+// Breakpoints
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+
+// Border Radius
+$border-radius-sm: 4px;
+$border-radius-md: 8px;
+$border-radius-lg: 12px;
+
+// Shadows
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.2);
+
+// Transitions
+$transition-fast: 0.15s ease;
+$transition-normal: 0.3s ease;
+$transition-slow: 0.5s ease;
+

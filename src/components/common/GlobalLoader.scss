@@ -1,0 +1,127 @@
+@use 'sass:color';
+@use '../../assets/styles/variables' as *;
+@use '../../assets/styles/mixins' as *;
+
+.global-loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  // Use theme-aware background color
+  background-color: rgba(26, 26, 26, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px); // Safari support
+  animation: fadeIn 0.2s ease;
+  
+  // Ensure dark background for both light and dark themes
+  [data-theme='light'] & {
+    background-color: rgba(255, 255, 255, 0.92);
+  }
+  
+  [data-theme='dark'] &,
+  &:not([data-theme]) {
+    background-color: rgba(26, 26, 26, 0.92);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.global-loader-content {
+  @include flex-column;
+  align-items: center;
+  gap: $spacing-lg;
+}
+
+.global-loader-spinner {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  filter: drop-shadow(0 0 20px rgba(var(--primary-color-rgb), 0.5));
+}
+
+.spinner-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 5px solid transparent;
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  box-shadow: 0 0 20px rgba(var(--primary-color-rgb), 0.3);
+
+  &:nth-child(1) {
+    animation-delay: -0.45s;
+    border-top-color: var(--primary-color);
+  }
+
+  &:nth-child(2) {
+    animation-delay: -0.3s;
+    border-top-color: var(--primary-color-light);
+    width: 80%;
+    height: 80%;
+    top: 10%;
+    left: 10%;
+  }
+
+  &:nth-child(3) {
+    animation-delay: -0.15s;
+    border-top-color: var(--primary-color-light);
+    width: 60%;
+    height: 60%;
+    top: 20%;
+    left: 20%;
+  }
+
+  &:nth-child(4) {
+    border-top-color: var(--primary-color-light);
+    width: 40%;
+    height: 40%;
+    top: 30%;
+    left: 30%;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.global-loader-text {
+  color: var(--text-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  animation: pulse 1.5s ease-in-out infinite;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
