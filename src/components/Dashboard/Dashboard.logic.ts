@@ -322,6 +322,20 @@ export const useDashboardLogic = () => {
     setSelectedUser(user);
   };
 
+  const handleCopyEmail = async (email: string, event?: React.MouseEvent) => {
+    if (event) {
+      event.stopPropagation();
+    }
+    try {
+      await navigator.clipboard.writeText(email);
+      // You could add a toast notification here if needed
+      console.log('Email copied:', email);
+    } catch (error) {
+      console.error('Failed to copy email:', error);
+      setUsersError('Failed to copy email');
+    }
+  };
+
   const handlePageChange = async (newPage: number) => {
     if (newPage >= 1 && pagination && newPage <= pagination.totalPages) {
       setCurrentPage(newPage);
@@ -400,6 +414,7 @@ export const useDashboardLogic = () => {
     processingUserId,
     selectedUser,
     handleUserCardClick,
+    handleCopyEmail,
     currentPage,
     handlePageChange,
     handlePreviousPage,

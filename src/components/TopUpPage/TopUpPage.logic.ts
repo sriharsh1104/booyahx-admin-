@@ -16,7 +16,10 @@ export const useTopUpPageLogic = () => {
   const [topUpUserQuery, setTopUpUserQuery] = useState<string>('');
   const [topUpSearchResults, setTopUpSearchResults] = useState<AdminUser[]>([]);
   const [topUpSelectedUser, setTopUpSelectedUser] = useState<AdminUser | null>(null);
+  const [topUpSelectedUsers, setTopUpSelectedUsers] = useState<AdminUser[]>([]);
+  const [topUpMode, setTopUpMode] = useState<'single' | 'bulk'>('single');
   const [topUpAmount, setTopUpAmount] = useState<string>('');
+  const [topUpDescription, setTopUpDescription] = useState<string>('');
   const [topUpLoading, setTopUpLoading] = useState(false);
   const [topUpError, setTopUpError] = useState<string | null>(null);
   const [topUpSuccess, setTopUpSuccess] = useState<string | null>(null);
@@ -98,7 +101,7 @@ export const useTopUpPageLogic = () => {
     // Set loading state immediately
     setSearchLoading(true);
 
-    // Debounce the API call - wait 500ms after user stops typing
+    // Debounce the API call - wait 1000ms after user stops typing
     searchDebounceTimerRef.current = setTimeout(() => {
       performUserSearch(query);
     }, 1000);
@@ -114,49 +117,134 @@ export const useTopUpPageLogic = () => {
   }, []);
 
   const handleTopUpUserSelect = (user: AdminUser) => {
-    setTopUpSelectedUser(user);
-    setTopUpUserQuery(`${user.name || 'N/A'} (${user.email})`);
-    setShowTopUpDropdown(false);
-    setTopUpSearchResults([]);
+    if (topUpMode === 'single') {
+      setTopUpSelectedUser(user);
+      setTopUpUserQuery(`${user.name || 'N/A'} (${user.email})`);
+      setShowTopUpDropdown(false);
+      setTopUpSearchResults([]);
+    } else {
+      // Bulk mode - add to selected users if not already selected
+      const userId = user.userId || user._id;
+      if (userId && !topUpSelectedUsers.some(u => (u.userId || u._id) === userId)) {
+        setTopUpSelectedUsers([...topUpSelectedUsers, user]);
+      }
+      // Keep dropdown open for bulk mode
+    }
+  };
+
+  const handleTopUpUserToggle = (user: AdminUser) => {
+    const userId = user.userId || user._id;
+    if (!userId) return;
+
+    if (topUpSelectedUsers.some(u => (u.userId || u._id) === userId)) {
+      // Remove from selection
+      setTopUpSelectedUsers(topUpSelectedUsers.filter(u => (u.userId || u._id) !== userId));
+    } else {
+      // Add to selection
+      setTopUpSelectedUsers([...topUpSelectedUsers, user]);
+    }
+  };
+
+  const handleRemoveSelectedUser = (userId: string) => {
+    setTopUpSelectedUsers(topUpSelectedUsers.filter(u => (u.userId || u._id) !== userId));
+  };
+
+  const handleClearAllSelected = () => {
+    setTopUpSelectedUsers([]);
+  };
+
+  const isUserSelected = (user: AdminUser): boolean => {
+    const userId = user.userId || user._id;
+    return topUpSelectedUsers.some(u => (u.userId || u._id) === userId);
   };
 
   const handleTopUpSubmit = async () => {
-    if (!topUpSelectedUser) {
-      setTopUpError('Please select a user');
-      return;
-    }
-
-    const amount = parseFloat(topUpAmount);
-    if (isNaN(amount) || amount <= 0) {
-      setTopUpError('Please enter a valid amount greater than 0');
-      return;
-    }
-
-    const userId = topUpSelectedUser.userId || topUpSelectedUser._id;
-    if (!userId) {
-      setTopUpError('Invalid user ID');
-      return;
-    }
-
-    setTopUpLoading(true);
-    setTopUpError(null);
-    setTopUpSuccess(null);
-
-    try {
-      const response = await usersApi.topUpBalance(userId, amount, 'Top-up via Admin Panel');
-      if (response.success) {
-        setTopUpSuccess(`Successfully added ${amount} GC to ${topUpSelectedUser.name || topUpSelectedUser.email}'s account. New balance: ${response.data?.balanceGC ?? 'N/A'} GC`);
-        setTopUpAmount('');
-        setTopUpSelectedUser(null);
-        setTopUpUserQuery('');
-      } else {
-        setTopUpError(response.message || 'Failed to top up balance');
+    if (topUpMode === 'single') {
+      if (!topUpSelectedUser) {
+        setTopUpError('Please select a user');
+        return;
       }
-    } catch (error: any) {
-      console.error('Failed to top up balance:', error);
-      setTopUpError(error?.response?.data?.message || error?.message || 'Failed to top up balance');
-    } finally {
-      setTopUpLoading(false);
+
+      const amount = parseFloat(topUpAmount);
+      if (isNaN(amount) || amount <= 0) {
+        setTopUpError('Please enter a valid amount greater than 0');
+        return;
+      }
+
+      const userId = topUpSelectedUser.userId || topUpSelectedUser._id;
+      if (!userId) {
+        setTopUpError('Invalid user ID');
+        return;
+      }
+
+      setTopUpLoading(true);
+      setTopUpError(null);
+      setTopUpSuccess(null);
+
+      try {
+        const description = topUpDescription.trim() || 'Top-up via Admin Panel';
+        const response = await usersApi.topUpBalance(userId, amount, description);
+        if (response.success) {
+          setTopUpSuccess(`Successfully added ${amount} GC to ${topUpSelectedUser.name || topUpSelectedUser.email}'s account. New balance: ${response.data?.balanceGC ?? 'N/A'} GC`);
+          setTopUpAmount('');
+          setTopUpDescription('');
+          setTopUpSelectedUser(null);
+          setTopUpUserQuery('');
+        } else {
+          setTopUpError(response.message || 'Failed to top up balance');
+        }
+      } catch (error: any) {
+        console.error('Failed to top up balance:', error);
+        setTopUpError(error?.response?.data?.message || error?.message || 'Failed to top up balance');
+      } finally {
+        setTopUpLoading(false);
+      }
+    } else {
+      // Bulk mode
+      if (topUpSelectedUsers.length === 0) {
+        setTopUpError('Please select at least one user');
+        return;
+      }
+
+      const amount = parseFloat(topUpAmount);
+      if (isNaN(amount) || amount <= 0) {
+        setTopUpError('Please enter a valid amount greater than 0');
+        return;
+      }
+
+      const userIds = topUpSelectedUsers
+        .map(user => user.userId || user._id)
+        .filter((id): id is string => !!id);
+
+      if (userIds.length === 0) {
+        setTopUpError('Invalid user IDs');
+        return;
+      }
+
+      setTopUpLoading(true);
+      setTopUpError(null);
+      setTopUpSuccess(null);
+
+      try {
+        const description = topUpDescription.trim() || 'Bulk top-up via Admin Panel';
+        const response = await usersApi.topUpBalanceBulk(userIds, amount, description);
+        if (response.success) {
+          const successCount = response.data?.successCount ?? topUpSelectedUsers.length;
+          const failedCount = response.data?.failedCount ?? 0;
+          setTopUpSuccess(`Successfully added ${amount} GC to ${successCount} user(s).${failedCount > 0 ? ` ${failedCount} user(s) failed.` : ''}`);
+          setTopUpAmount('');
+          setTopUpDescription('');
+          setTopUpSelectedUsers([]);
+          setTopUpUserQuery('');
+        } else {
+          setTopUpError(response.message || 'Failed to top up balance');
+        }
+      } catch (error: any) {
+        console.error('Failed to bulk top up balance:', error);
+        setTopUpError(error?.response?.data?.message || error?.message || 'Failed to bulk top up balance');
+      } finally {
+        setTopUpLoading(false);
+      }
     }
   };
 
@@ -168,7 +256,10 @@ export const useTopUpPageLogic = () => {
     topUpUserQuery,
     topUpSearchResults,
     topUpSelectedUser,
+    topUpSelectedUsers,
+    topUpMode,
     topUpAmount,
+    topUpDescription,
     topUpLoading,
     topUpError,
     topUpSuccess,
@@ -176,8 +267,17 @@ export const useTopUpPageLogic = () => {
     searchLoading,
     handleTopUpUserSearch,
     handleTopUpUserSelect,
+    handleTopUpUserToggle,
+    handleRemoveSelectedUser,
+    handleClearAllSelected,
+    isUserSelected,
     handleTopUpSubmit,
     setTopUpAmount,
+    setTopUpDescription,
+    setTopUpMode,
+    setTopUpSelectedUser,
+    setTopUpSelectedUsers,
+    setTopUpUserQuery,
     setTopUpError,
     setTopUpSuccess,
     setShowTopUpDropdown,

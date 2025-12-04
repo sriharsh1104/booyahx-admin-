@@ -41,6 +41,7 @@ const Dashboard: React.FC = () => {
     processingUserId,
     selectedUser,
     handleUserCardClick,
+    handleCopyEmail,
     currentPage,
     handlePreviousPage,
     handleNextPage,
@@ -354,7 +355,21 @@ const Dashboard: React.FC = () => {
                           </div>
                           <div className="user-email">
                             <span className="user-label">Email:</span>
-                            <span className="user-value">{adminUser.email}</span>
+                            <span className="user-value">
+                              {adminUser.email}
+                              <button
+                                type="button"
+                                className="copy-email-btn"
+                                onClick={(e) => handleCopyEmail(adminUser.email, e)}
+                                title="Copy email"
+                                aria-label="Copy email"
+                              >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                              </button>
+                            </span>
                           </div>
                           <div className="user-balance">
                             <span className="user-label">Balance GC:</span>
@@ -463,7 +478,21 @@ const Dashboard: React.FC = () => {
               </div>
               <div className="user-detail-item">
                 <span className="detail-label">Email:</span>
-                <span className="detail-value">{selectedUser.email}</span>
+                <span className="detail-value">
+                  {selectedUser.email}
+                  <button
+                    type="button"
+                    className="copy-email-btn"
+                    onClick={(e) => handleCopyEmail(selectedUser.email, e)}
+                    title="Copy email"
+                    aria-label="Copy email"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                  </button>
+                </span>
               </div>
               <div className="user-detail-item">
                 <span className="detail-label">Role:</span>

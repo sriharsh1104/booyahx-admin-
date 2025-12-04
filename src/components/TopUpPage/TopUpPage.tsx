@@ -14,7 +14,10 @@ const TopUpPage: React.FC = () => {
     topUpUserQuery,
     topUpSearchResults,
     topUpSelectedUser,
+    topUpSelectedUsers,
+    topUpMode,
     topUpAmount,
+    topUpDescription,
     topUpLoading,
     topUpError,
     topUpSuccess,
@@ -22,8 +25,17 @@ const TopUpPage: React.FC = () => {
     searchLoading,
     handleTopUpUserSearch,
     handleTopUpUserSelect,
+    handleTopUpUserToggle,
+    handleRemoveSelectedUser,
+    handleClearAllSelected,
+    isUserSelected,
     handleTopUpSubmit,
     setTopUpAmount,
+    setTopUpDescription,
+    setTopUpMode,
+    setTopUpSelectedUser,
+    setTopUpSelectedUsers,
+    setTopUpUserQuery,
     setTopUpError,
     setTopUpSuccess,
     setShowTopUpDropdown,
@@ -142,8 +154,42 @@ const TopUpPage: React.FC = () => {
             <h2 className="card-title">Top Up User Balance</h2>
             <div className="top-up-section">
               <div className="top-up-form">
+                {/* Mode Toggle */}
                 <div className="form-group">
-                  <label className="form-label">Select User</label>
+                  <label className="form-label">Top Up Mode</label>
+                  <div className="mode-toggle">
+                    <button
+                      type="button"
+                      className={`mode-toggle-btn ${topUpMode === 'single' ? 'active' : ''}`}
+                      onClick={() => {
+                        setTopUpMode('single');
+                        setTopUpSelectedUsers([]);
+                        setTopUpSelectedUser(null);
+                        setTopUpUserQuery('');
+                      }}
+                      disabled={topUpLoading}
+                    >
+                      Single User
+                    </button>
+                    <button
+                      type="button"
+                      className={`mode-toggle-btn ${topUpMode === 'bulk' ? 'active' : ''}`}
+                      onClick={() => {
+                        setTopUpMode('bulk');
+                        setTopUpSelectedUser(null);
+                        setTopUpUserQuery('');
+                      }}
+                      disabled={topUpLoading}
+                    >
+                      Multiple Users
+                    </button>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">
+                    {topUpMode === 'single' ? 'Select User' : 'Search & Select Users'}
+                  </label>
                   <div className="user-search-container" ref={topUpDropdownRef}>
                     <input
                       type="text"
@@ -168,23 +214,40 @@ const TopUpPage: React.FC = () => {
                           return (
                             <div
                               key={userId}
-                              className="user-search-item"
-                              onClick={() => handleTopUpUserSelect(user)}
+                              className={`user-search-item ${topUpMode === 'bulk' ? 'with-checkbox' : ''}`}
+                              onClick={() => {
+                                if (topUpMode === 'bulk') {
+                                  handleTopUpUserToggle(user);
+                                } else {
+                                  handleTopUpUserSelect(user);
+                                }
+                              }}
                             >
-                              <div className="user-search-name">{user.name || 'N/A'}</div>
-                              <div className="user-search-email">{user.email}</div>
-                              {user.balanceGC !== undefined && (
-                                <div className="user-search-balance">
-                                  Balance: {user.balanceGC} GC
-                                </div>
+                              {topUpMode === 'bulk' && (
+                                <input
+                                  type="checkbox"
+                                  checked={isUserSelected(user)}
+                                  onChange={() => handleTopUpUserToggle(user)}
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="user-checkbox"
+                                />
                               )}
+                              <div className="user-search-info">
+                                <div className="user-search-name">{user.name || 'N/A'}</div>
+                                <div className="user-search-email">{user.email}</div>
+                                {user.balanceGC !== undefined && (
+                                  <div className="user-search-balance">
+                                    Balance: {user.balanceGC} GC
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           );
                         })}
                       </div>
                     )}
                   </div>
-                  {topUpSelectedUser && (
+                  {topUpMode === 'single' && topUpSelectedUser && (
                     <div className="selected-user-info">
                       <span className="selected-user-label">Selected:</span>
                       <span className="selected-user-name">{topUpSelectedUser.name || 'N/A'}</span>
@@ -194,6 +257,46 @@ const TopUpPage: React.FC = () => {
                           Current Balance: {topUpSelectedUser.balanceGC} GC
                         </span>
                       )}
+                    </div>
+                  )}
+                  {topUpMode === 'bulk' && topUpSelectedUsers.length > 0 && (
+                    <div className="selected-users-list">
+                      <div className="selected-users-header">
+                        <span className="selected-users-count">
+                          {topUpSelectedUsers.length} user(s) selected
+                        </span>
+                        <button
+                          type="button"
+                          className="clear-all-btn"
+                          onClick={handleClearAllSelected}
+                          disabled={topUpLoading}
+                        >
+                          Clear All
+                        </button>
+                      </div>
+                      <div className="selected-users-items">
+                        {topUpSelectedUsers.map((user) => {
+                          const userId = user.userId || user._id || '';
+                          return (
+                            <div key={userId} className="selected-user-chip">
+                              <span className="chip-name">{user.name || 'N/A'}</span>
+                              <span className="chip-email">({user.email})</span>
+                              {user.balanceGC !== undefined && (
+                                <span className="chip-balance">{user.balanceGC} GC</span>
+                              )}
+                              <button
+                                type="button"
+                                className="chip-remove"
+                                onClick={() => handleRemoveSelectedUser(userId)}
+                                disabled={topUpLoading}
+                                aria-label="Remove user"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -207,7 +310,18 @@ const TopUpPage: React.FC = () => {
                     onChange={(e) => setTopUpAmount(e.target.value)}
                     min="0"
                     step="0.01"
-                    disabled={topUpLoading || !topUpSelectedUser}
+                    disabled={topUpLoading || (topUpMode === 'single' && !topUpSelectedUser) || (topUpMode === 'bulk' && topUpSelectedUsers.length === 0)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Description (Optional)</label>
+                  <input
+                    type="text"
+                    className="description-input"
+                    placeholder="Enter description for this top-up"
+                    value={topUpDescription}
+                    onChange={(e) => setTopUpDescription(e.target.value)}
+                    disabled={topUpLoading}
                   />
                 </div>
                 {topUpError && (
@@ -223,9 +337,19 @@ const TopUpPage: React.FC = () => {
                 <button
                   className="top-up-button"
                   onClick={handleTopUpSubmit}
-                  disabled={topUpLoading || !topUpSelectedUser || !topUpAmount || parseFloat(topUpAmount) <= 0}
+                  disabled={
+                    topUpLoading ||
+                    !topUpAmount ||
+                    parseFloat(topUpAmount) <= 0 ||
+                    (topUpMode === 'single' && !topUpSelectedUser) ||
+                    (topUpMode === 'bulk' && topUpSelectedUsers.length === 0)
+                  }
                 >
-                  {topUpLoading ? 'Processing...' : 'Top Up Balance'}
+                  {topUpLoading
+                    ? 'Processing...'
+                    : topUpMode === 'bulk'
+                    ? `Top Up ${topUpSelectedUsers.length} User(s)`
+                    : 'Top Up Balance'}
                 </button>
               </div>
             </div>

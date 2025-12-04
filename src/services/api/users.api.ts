@@ -61,6 +61,28 @@ export interface TopUpResponse {
   };
 }
 
+export interface BulkTopUpRequest {
+  userIds: string[];
+  amountGC: number;
+  description?: string;
+}
+
+export interface BulkTopUpResponse {
+  status: number;
+  success: boolean;
+  message: string;
+  data?: {
+    successCount?: number;
+    failedCount?: number;
+    results?: Array<{
+      userId: string;
+      success: boolean;
+      balanceGC?: number;
+      error?: string;
+    }>;
+  };
+}
+
 export const usersApi = {
   /**
    * Get admin users with optional role filter and search query
@@ -146,6 +168,21 @@ export const usersApi = {
       userId,
       amountGC,
       description: description || 'Top-up via Admin Panel',
+    });
+    return response.data;
+  },
+
+  /**
+   * Bulk top up user balance (Admin only)
+   * @param userIds - Array of user IDs to top up
+   * @param amountGC - Amount to add to balance for each user
+   * @param description - Optional description for the top-up
+   */
+  topUpBalanceBulk: async (userIds: string[], amountGC: number, description?: string): Promise<BulkTopUpResponse> => {
+    const response = await apiClient.post<BulkTopUpResponse>('/api/wallet/add-balance-bulk', {
+      userIds,
+      amountGC,
+      description: description || 'Bulk top-up via Admin Panel',
     });
     return response.data;
   },

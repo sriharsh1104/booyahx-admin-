@@ -1065,6 +1065,9 @@
   font-weight: 500;
   word-break: break-word;
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
 }
 
 // Pagination Controls
@@ -1266,6 +1269,48 @@
   font-size: 1rem;
   font-weight: 500;
   word-break: break-word;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+// Copy Email Button
+.copy-email-btn {
+  padding: $spacing-xs;
+  border: none;
+  background: rgba(var(--primary-color-rgb), 0.1);
+  color: var(--primary-color);
+  border-radius: $border-radius-sm;
+  cursor: pointer;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+  flex-shrink: 0;
+  opacity: 0.7;
+  width: 24px;
+  height: 24px;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    transition: all $transition-fast;
+  }
+
+  &:hover {
+    background: rgba(var(--primary-color-rgb), 0.2);
+    opacity: 1;
+    transform: scale(1.1);
+    
+    svg {
+      color: var(--primary-color-light);
+    }
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
 }
 
 .balance-highlight {
