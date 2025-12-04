@@ -46,6 +46,21 @@ export interface BlockUnblockResponse {
   };
 }
 
+export interface TopUpRequest {
+  userId: string;
+  amountGC: number;
+  description?: string;
+}
+
+export interface TopUpResponse {
+  status: number;
+  success: boolean;
+  message: string;
+  data?: {
+    balanceGC: number;
+  };
+}
+
 export const usersApi = {
   /**
    * Get admin users with optional role filter and search query
@@ -116,6 +131,21 @@ export const usersApi = {
   unblockUsers: async (userIds: string[]): Promise<BlockUnblockResponse> => {
     const response = await apiClient.post<BlockUnblockResponse>('/api/admin/users/unblock', {
       userIds,
+    });
+    return response.data;
+  },
+
+  /**
+   * Top up user balance (Admin only)
+   * @param userId - User ID to top up
+   * @param amountGC - Amount to add to balance
+   * @param description - Optional description for the top-up
+   */
+  topUpBalance: async (userId: string, amountGC: number, description?: string): Promise<TopUpResponse> => {
+    const response = await apiClient.post<TopUpResponse>('/api/wallet/add-balance', {
+      userId,
+      amountGC,
+      description: description || 'Top-up via Admin Panel',
     });
     return response.data;
   },

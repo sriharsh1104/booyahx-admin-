@@ -95,6 +95,18 @@ const GenerateLobbyPage: React.FC = () => {
             <span className="nav-icon">🎮</span>
             {sidebarOpen && <span className="nav-text">Generate Lobby</span>}
           </Link>
+          <Link 
+            to={ROUTES.TOP_UP} 
+            className={`nav-item ${location.pathname === ROUTES.TOP_UP ? 'active' : ''}`}
+            onClick={(e) => {
+              if (location.pathname === ROUTES.TOP_UP) {
+                e.preventDefault();
+              }
+            }}
+          >
+            <span className="nav-icon">💰</span>
+            {sidebarOpen && <span className="nav-text">Top Up</span>}
+          </Link>
         </nav>
 
         <div className="sidebar-footer">

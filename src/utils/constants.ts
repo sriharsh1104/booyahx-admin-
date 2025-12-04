@@ -8,6 +8,7 @@ export const ROUTES = {
   HEALTH: '/health',
   PROFILE: '/profile',
   GENERATE_LOBBY: '/generate-lobby',
+  TOP_UP: '/top-up',
 } as const;
 
 export const STORAGE_KEYS = {

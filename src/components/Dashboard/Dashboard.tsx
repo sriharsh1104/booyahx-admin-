@@ -42,7 +42,6 @@ const Dashboard: React.FC = () => {
     selectedUser,
     handleUserCardClick,
     currentPage,
-    handlePageChange,
     handlePreviousPage,
     handleNextPage,
   } = useDashboardLogic();
@@ -104,6 +103,19 @@ const Dashboard: React.FC = () => {
           >
             <span className="nav-icon">🎮</span>
             {sidebarOpen && <span className="nav-text">Generate Lobby</span>}
+          </Link>
+          <Link 
+            to={ROUTES.TOP_UP} 
+            className={`nav-item ${location.pathname === ROUTES.TOP_UP ? 'active' : ''}`}
+            onClick={(e) => {
+              // Prevent navigation if already on top up page
+              if (location.pathname === ROUTES.TOP_UP) {
+                e.preventDefault();
+              }
+            }}
+          >
+            <span className="nav-icon">💰</span>
+            {sidebarOpen && <span className="nav-text">Top Up</span>}
           </Link>
         </nav>
 

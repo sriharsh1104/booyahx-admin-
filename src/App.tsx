@@ -11,6 +11,7 @@ const Dashboard = lazy(() => import('@components/Dashboard/Dashboard'));
 const HealthStatus = lazy(() => import('@components/HealthStatus/HealthStatus'));
 const Profile = lazy(() => import('@components/Profile/Profile'));
 const GenerateLobbyPage = lazy(() => import('@components/GenerateLobbyPage/GenerateLobbyPage'));
+const TopUpPage = lazy(() => import('@components/TopUpPage/TopUpPage'));
 
 function App() {
   return (
@@ -48,6 +49,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <GenerateLobbyPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTES.TOP_UP}
+            element={
+              <ProtectedRoute>
+                <TopUpPage />
               </ProtectedRoute>
             }
           />
