@@ -83,6 +83,35 @@ export interface BulkTopUpResponse {
   };
 }
 
+export interface TopUpTransaction {
+  _id?: string;
+  userId: string;
+  amountGC: number;
+  status: 'success' | 'fail';
+  description?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface TopUpTransactionsResponse {
+  status: number;
+  success: boolean;
+  message: string;
+  data?: {
+    transactions: TopUpTransaction[];
+    total?: number;
+  };
+}
+
+export interface TopUpTransactionsParams {
+  limit?: number;
+  skip?: number;
+  status?: 'success' | 'fail';
+  userId?: string;
+  startDate?: string; // YYYY-MM-DD
+  endDate?: string; // YYYY-MM-DD
+}
+
 export const usersApi = {
   /**
    * Get admin users with optional role filter and search query
@@ -185,6 +214,51 @@ export const usersApi = {
       description: description || 'Bulk top-up via Admin Panel',
     });
     return response.data;
+  },
+
+  /**
+   * Get top-up transactions (Admin only)
+   * @param params - Query parameters for filtering transactions
+   */
+  getTopUpTransactions: async (params?: TopUpTransactionsParams): Promise<{ transactions: TopUpTransaction[]; total?: number }> => {
+    try {
+      const queryParams: Record<string, string> = {};
+      if (params?.limit) {
+        queryParams.limit = params.limit.toString();
+      }
+      if (params?.skip) {
+        queryParams.skip = params.skip.toString();
+      }
+      if (params?.status) {
+        queryParams.status = params.status;
+      }
+      if (params?.userId) {
+        queryParams.userId = params.userId;
+      }
+      if (params?.startDate) {
+        queryParams.startDate = params.startDate;
+      }
+      if (params?.endDate) {
+        queryParams.endDate = params.endDate;
+      }
+
+      const response = await apiClient.get<TopUpTransactionsResponse>('/api/admin/topup-transactions', { params: queryParams });
+      
+      if (response.data?.data?.transactions && Array.isArray(response.data.data.transactions)) {
+        return {
+          transactions: response.data.data.transactions,
+          total: response.data.data.total,
+        };
+      }
+      
+      return {
+        transactions: [],
+        total: 0,
+      };
+    } catch (error: any) {
+      console.error('Failed to get top-up transactions:', error);
+      throw error;
+    }
   },
 };
 

@@ -139,6 +139,18 @@ const TopUpPage: React.FC = () => {
             <span className="nav-icon">👤</span>
             {sidebarOpen && <span className="nav-text">Host Creation</span>}
           </Link>
+          <Link 
+            to={ROUTES.USER_HISTORY} 
+            className={`nav-item ${location.pathname === ROUTES.USER_HISTORY ? 'active' : ''}`}
+            onClick={(e) => {
+              if (location.pathname === ROUTES.USER_HISTORY) {
+                e.preventDefault();
+              }
+            }}
+          >
+            <span className="nav-icon">📜</span>
+            {sidebarOpen && <span className="nav-text">User History</span>}
+          </Link>
         </nav>
 
         <div className="sidebar-footer">

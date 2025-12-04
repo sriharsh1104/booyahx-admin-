@@ -13,6 +13,7 @@ const Profile = lazy(() => import('@components/Profile/Profile'));
 const GenerateLobbyPage = lazy(() => import('@components/GenerateLobbyPage/GenerateLobbyPage'));
 const TopUpPage = lazy(() => import('@components/TopUpPage/TopUpPage'));
 const HostCreationPage = lazy(() => import('@components/HostCreationPage/HostCreationPage'));
+const UserHistoryPage = lazy(() => import('@components/UserHistoryPage/UserHistoryPage'));
 
 function App() {
   return (
@@ -66,6 +67,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <HostCreationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTES.USER_HISTORY}
+            element={
+              <ProtectedRoute>
+                <UserHistoryPage />
               </ProtectedRoute>
             }
           />

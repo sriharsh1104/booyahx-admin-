@@ -398,13 +398,15 @@ export const useDashboardLogic = () => {
   };
 
   // Host Statistics functions
-  const loadHostStatistics = useCallback(async () => {
+  const loadHostStatistics = useCallback(async (filters?: typeof hostStatsFilters) => {
     if (!isAuthenticated) return;
+    
+    const filtersToUse = filters !== undefined ? filters : hostStatsFilters;
     
     setHostStatsLoading(true);
     setHostStatsError(null);
     try {
-      const result = await hostApplicationsApi.getHostStatistics(hostStatsFilters);
+      const result = await hostApplicationsApi.getHostStatistics(filtersToUse);
       setHostStatistics(result.hosts || []);
       setTotalHosts(result.totalHosts || 0);
       setTotalLobbies(result.totalLobbies || 0);
@@ -416,11 +418,14 @@ export const useDashboardLogic = () => {
     }
   }, [isAuthenticated, hostStatsFilters]);
 
+  // Only load statistics when tab is first opened, not on filter changes
   useEffect(() => {
     if (activeTab === 'hostStats' && isAuthenticated) {
-      loadHostStatistics();
+      // Load with empty filters initially
+      loadHostStatistics({});
     }
-  }, [activeTab, isAuthenticated, loadHostStatistics]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, isAuthenticated]); // Only load when tab changes, not when filters change
 
   const handleHostStatsFilterChange = (filterType: 'date' | 'fromDate' | 'toDate' | 'hostId', value: string) => {
     setHostStatsFilters((prev) => ({
@@ -431,6 +436,12 @@ export const useDashboardLogic = () => {
 
   const handleClearHostStatsFilters = () => {
     setHostStatsFilters({});
+    // Optionally reload with cleared filters
+    // loadHostStatistics();
+  };
+
+  const handleSearchHostStats = () => {
+    loadHostStatistics();
   };
 
   return {
@@ -480,6 +491,7 @@ export const useDashboardLogic = () => {
     totalLobbies,
     handleHostStatsFilterChange,
     handleClearHostStatsFilters,
+    handleSearchHostStats,
     loadHostStatistics,
   };
 };

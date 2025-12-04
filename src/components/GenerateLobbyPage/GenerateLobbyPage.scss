@@ -426,6 +426,13 @@
   }
 }
 
+.date-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
 .date-filter-input {
   padding: $spacing-sm $spacing-md;
   border: 2px solid var(--border-color);
@@ -451,15 +458,33 @@
 
 .clear-date-button {
   @include button-secondary;
-  padding: $spacing-xs $spacing-sm;
+  padding: 0;
   min-width: 28px;
+  width: 28px;
   height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  font-size: 0.9rem;
-  margin-left: $spacing-xs;
+  font-size: 1rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  transition: all $transition-fast;
+
+  &:hover:not(:disabled) {
+    background: rgba(220, 38, 38, 0.2);
+    color: #dc2626;
+    transform: scale(1.1);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 .tournaments-header .card-title {

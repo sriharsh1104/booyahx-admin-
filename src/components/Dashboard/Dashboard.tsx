@@ -56,6 +56,7 @@ const Dashboard: React.FC = () => {
     totalLobbies,
     handleHostStatsFilterChange,
     handleClearHostStatsFilters,
+    handleSearchHostStats,
     loadHostStatistics,
   } = useDashboardLogic();
 
@@ -142,6 +143,19 @@ const Dashboard: React.FC = () => {
           >
             <span className="nav-icon">👤</span>
             {sidebarOpen && <span className="nav-text">Host Creation</span>}
+          </Link>
+          <Link 
+            to={ROUTES.USER_HISTORY} 
+            className={`nav-item ${location.pathname === ROUTES.USER_HISTORY ? 'active' : ''}`}
+            onClick={(e) => {
+              // Prevent navigation if already on user history page
+              if (location.pathname === ROUTES.USER_HISTORY) {
+                e.preventDefault();
+              }
+            }}
+          >
+            <span className="nav-icon">📜</span>
+            {sidebarOpen && <span className="nav-text">User History</span>}
           </Link>
         </nav>
 
@@ -547,15 +561,29 @@ const Dashboard: React.FC = () => {
                   value={hostStatsFilters.hostId || ''}
                   onChange={(e) => handleHostStatsFilterChange('hostId', e.target.value)}
                   disabled={hostStatsLoading}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSearchHostStats();
+                    }
+                  }}
                 />
               </div>
-              <button
-                className="clear-filters-button"
-                onClick={handleClearHostStatsFilters}
-                disabled={hostStatsLoading}
-              >
-                Clear Filters
-              </button>
+              <div className="filter-actions">
+                <button
+                  className="search-filters-button"
+                  onClick={handleSearchHostStats}
+                  disabled={hostStatsLoading}
+                >
+                  {hostStatsLoading ? 'Searching...' : '🔍 Search'}
+                </button>
+                <button
+                  className="clear-filters-button"
+                  onClick={handleClearHostStatsFilters}
+                  disabled={hostStatsLoading}
+                >
+                  Clear Filters
+                </button>
+              </div>
             </div>
 
             {hostStatsLoading ? (

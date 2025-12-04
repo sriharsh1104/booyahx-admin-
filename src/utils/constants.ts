@@ -10,6 +10,7 @@ export const ROUTES = {
   GENERATE_LOBBY: '/generate-lobby',
   TOP_UP: '/top-up',
   HOST_CREATION: '/host-creation',
+  USER_HISTORY: '/user-history',
 } as const;
 
 export const STORAGE_KEYS = {
