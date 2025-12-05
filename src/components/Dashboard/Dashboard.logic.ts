@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authApi, usersApi, type AdminUser } from '@services/api';
+import { authApi, usersApi, hostApplicationsApi, type AdminUser, type HostStatistics } from '@services/api';
 import { ROUTES } from '@utils/constants';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { selectUser, selectIsAuthenticated, setUser, logout } from '@store/slices/authSlice';
@@ -17,6 +17,8 @@ export const useDashboardLogic = () => {
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersError, setUsersError] = useState<string | null>(null);
   const [pagination, setPagination] = useState<{ page: number; total: number; totalPages: number } | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageLimit] = useState<number>(10);
   const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'host' | 'user'>('all');
   const [userQuery, setUserQuery] = useState<string>('');
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
@@ -24,6 +26,21 @@ export const useDashboardLogic = () => {
   const [isUnblocking, setIsUnblocking] = useState(false);
   const [processingUserId, setProcessingUserId] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
+  const isManualSearchRef = useRef(false);
+  
+  // Host Statistics states
+  const [activeTab, setActiveTab] = useState<'users' | 'hostStats'>('users');
+  const [hostStatistics, setHostStatistics] = useState<HostStatistics[]>([]);
+  const [hostStatsLoading, setHostStatsLoading] = useState(false);
+  const [hostStatsError, setHostStatsError] = useState<string | null>(null);
+  const [hostStatsFilters, setHostStatsFilters] = useState<{
+    date?: string;
+    fromDate?: string;
+    toDate?: string;
+    hostId?: string;
+  }>({});
+  const [totalHosts, setTotalHosts] = useState<number>(0);
+  const [totalLobbies, setTotalLobbies] = useState<number>(0);
 
   useEffect(() => {
     // Check authentication from Redux
@@ -54,6 +71,11 @@ export const useDashboardLogic = () => {
   // Load users list based on role filter (without query - query only on button click)
   useEffect(() => {
     if (!isAuthenticated) return;
+    if (isManualSearchRef.current) {
+      // Skip automatic load if we're doing a manual search
+      isManualSearchRef.current = false;
+      return;
+    }
 
     const loadUsers = async () => {
       setUsersLoading(true);
@@ -63,7 +85,7 @@ export const useDashboardLogic = () => {
         // If filter is specific role, pass role parameter (searches only that role)
         const role = roleFilter === 'all' ? undefined : roleFilter;
         // Don't pass query here - only load users by role
-        const result = await usersApi.getUsers(role);
+        const result = await usersApi.getUsers(role, undefined, currentPage, pageLimit);
         setUsers(result.users);
         if (result.pagination) {
           setPagination({
@@ -90,7 +112,7 @@ export const useDashboardLogic = () => {
     };
 
     loadUsers();
-  }, [isAuthenticated, roleFilter]);
+  }, [isAuthenticated, roleFilter, currentPage, pageLimit]);
 
   const handleLogoutConfirm = async () => {
     try {
@@ -110,12 +132,15 @@ export const useDashboardLogic = () => {
 
   const handleRoleFilterChange = (filter: 'all' | 'admin' | 'host' | 'user') => {
     setRoleFilter(filter);
+    setCurrentPage(1); // Reset to first page when filter changes
     setSelectedUserIds(new Set()); // Clear selection when filter changes
   };
 
   const handleQueryUsers = async () => {
     if (!isAuthenticated) return;
 
+    isManualSearchRef.current = true; // Prevent useEffect from running
+    setCurrentPage(1); // Reset to first page when searching
     setUsersLoading(true);
     setUsersError(null);
     try {
@@ -123,7 +148,7 @@ export const useDashboardLogic = () => {
       // If filter is specific role, pass role parameter (searches only that role)
       const role = roleFilter === 'all' ? undefined : roleFilter;
       const query = userQuery.trim() || undefined;
-      const result = await usersApi.getUsers(role, query);
+      const result = await usersApi.getUsers(role, query, 1, pageLimit); // Use page 1 for new search
       setUsers(result.users);
       if (result.pagination) {
         setPagination({
@@ -204,7 +229,7 @@ export const useDashboardLogic = () => {
       // Reload users list with current filters
       const role = roleFilter === 'all' ? undefined : roleFilter;
       const query = userQuery.trim() || undefined;
-      const result = await usersApi.getUsers(role, query);
+      const result = await usersApi.getUsers(role, query, currentPage, pageLimit);
       setUsers(result.users);
       if (result.pagination) {
         setPagination({
@@ -233,7 +258,7 @@ export const useDashboardLogic = () => {
       // Reload users list with current filters
       const role = roleFilter === 'all' ? undefined : roleFilter;
       const query = userQuery.trim() || undefined;
-      const result = await usersApi.getUsers(role, query);
+      const result = await usersApi.getUsers(role, query, currentPage, pageLimit);
       setUsers(result.users);
       if (result.pagination) {
         setPagination({
@@ -264,7 +289,7 @@ export const useDashboardLogic = () => {
       // Reload users list with current filters
       const role = roleFilter === 'all' ? undefined : roleFilter;
       const query = userQuery.trim() || undefined;
-      const result = await usersApi.getUsers(role, query);
+      const result = await usersApi.getUsers(role, query, currentPage, pageLimit);
       setUsers(result.users);
       if (result.pagination) {
         setPagination({
@@ -288,7 +313,7 @@ export const useDashboardLogic = () => {
       // Reload users list with current filters
       const role = roleFilter === 'all' ? undefined : roleFilter;
       const query = userQuery.trim() || undefined;
-      const result = await usersApi.getUsers(role, query);
+      const result = await usersApi.getUsers(role, query, currentPage, pageLimit);
       setUsers(result.users);
       if (result.pagination) {
         setPagination({
@@ -309,6 +334,114 @@ export const useDashboardLogic = () => {
 
   const handleUserCardClick = (user: AdminUser | null) => {
     setSelectedUser(user);
+  };
+
+  const handleCopyEmail = async (email: string, event?: React.MouseEvent) => {
+    if (event) {
+      event.stopPropagation();
+    }
+    try {
+      await navigator.clipboard.writeText(email);
+      // You could add a toast notification here if needed
+      console.log('Email copied:', email);
+    } catch (error) {
+      console.error('Failed to copy email:', error);
+      setUsersError('Failed to copy email');
+    }
+  };
+
+  const handlePageChange = async (newPage: number) => {
+    if (newPage >= 1 && pagination && newPage <= pagination.totalPages) {
+      setCurrentPage(newPage);
+      setSelectedUserIds(new Set()); // Clear selection when page changes
+      
+      // If there's a search query, reload with query; otherwise useEffect will handle it
+      if (userQuery.trim()) {
+        isManualSearchRef.current = true;
+        setUsersLoading(true);
+        setUsersError(null);
+        try {
+          const role = roleFilter === 'all' ? undefined : roleFilter;
+          const query = userQuery.trim() || undefined;
+          const result = await usersApi.getUsers(role, query, newPage, pageLimit);
+          setUsers(result.users);
+          if (result.pagination) {
+            setPagination({
+              page: result.pagination.page,
+              total: result.pagination.total,
+              totalPages: result.pagination.totalPages,
+            });
+          }
+        } catch (error: any) {
+          if (error?.message?.includes('cancelled') || error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') {
+            return;
+          }
+          console.error('Failed to load users:', error);
+          setUsersError(error?.message || 'Failed to load users');
+        } finally {
+          setUsersLoading(false);
+        }
+      }
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      handlePageChange(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (pagination && currentPage < pagination.totalPages) {
+      handlePageChange(currentPage + 1);
+    }
+  };
+
+  // Host Statistics functions
+  const loadHostStatistics = useCallback(async (filters?: typeof hostStatsFilters) => {
+    if (!isAuthenticated) return;
+    
+    const filtersToUse = filters !== undefined ? filters : hostStatsFilters;
+    
+    setHostStatsLoading(true);
+    setHostStatsError(null);
+    try {
+      const result = await hostApplicationsApi.getHostStatistics(filtersToUse);
+      setHostStatistics(result.hosts || []);
+      setTotalHosts(result.totalHosts || 0);
+      setTotalLobbies(result.totalLobbies || 0);
+    } catch (error: any) {
+      console.error('Failed to load host statistics:', error);
+      setHostStatsError(error?.message || 'Failed to load host statistics');
+    } finally {
+      setHostStatsLoading(false);
+    }
+  }, [isAuthenticated, hostStatsFilters]);
+
+  // Only load statistics when tab is first opened, not on filter changes
+  useEffect(() => {
+    if (activeTab === 'hostStats' && isAuthenticated) {
+      // Load with empty filters initially
+      loadHostStatistics({});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, isAuthenticated]); // Only load when tab changes, not when filters change
+
+  const handleHostStatsFilterChange = (filterType: 'date' | 'fromDate' | 'toDate' | 'hostId', value: string) => {
+    setHostStatsFilters((prev) => ({
+      ...prev,
+      [filterType]: value || undefined,
+    }));
+  };
+
+  const handleClearHostStatsFilters = () => {
+    setHostStatsFilters({});
+    // Optionally reload with cleared filters
+    // loadHostStatistics();
+  };
+
+  const handleSearchHostStats = () => {
+    loadHostStatistics();
   };
 
   return {
@@ -342,6 +475,24 @@ export const useDashboardLogic = () => {
     processingUserId,
     selectedUser,
     handleUserCardClick,
+    handleCopyEmail,
+    currentPage,
+    handlePageChange,
+    handlePreviousPage,
+    handleNextPage,
+    // Host Statistics
+    activeTab,
+    setActiveTab,
+    hostStatistics,
+    hostStatsLoading,
+    hostStatsError,
+    hostStatsFilters,
+    totalHosts,
+    totalLobbies,
+    handleHostStatsFilterChange,
+    handleClearHostStatsFilters,
+    handleSearchHostStats,
+    loadHostStatistics,
   };
 };
 

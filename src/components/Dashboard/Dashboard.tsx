@@ -41,6 +41,23 @@ const Dashboard: React.FC = () => {
     processingUserId,
     selectedUser,
     handleUserCardClick,
+    handleCopyEmail,
+    currentPage,
+    handlePreviousPage,
+    handleNextPage,
+    // Host Statistics
+    activeTab,
+    setActiveTab,
+    hostStatistics,
+    hostStatsLoading,
+    hostStatsError,
+    hostStatsFilters,
+    totalHosts,
+    totalLobbies,
+    handleHostStatsFilterChange,
+    handleClearHostStatsFilters,
+    handleSearchHostStats,
+    loadHostStatistics,
   } = useDashboardLogic();
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -100,6 +117,45 @@ const Dashboard: React.FC = () => {
           >
             <span className="nav-icon">🎮</span>
             {sidebarOpen && <span className="nav-text">Generate Lobby</span>}
+          </Link>
+          <Link 
+            to={ROUTES.TOP_UP} 
+            className={`nav-item ${location.pathname === ROUTES.TOP_UP ? 'active' : ''}`}
+            onClick={(e) => {
+              // Prevent navigation if already on top up page
+              if (location.pathname === ROUTES.TOP_UP) {
+                e.preventDefault();
+              }
+            }}
+          >
+            <span className="nav-icon">💰</span>
+            {sidebarOpen && <span className="nav-text">Top Up</span>}
+          </Link>
+          <Link 
+            to={ROUTES.HOST_CREATION} 
+            className={`nav-item ${location.pathname === ROUTES.HOST_CREATION ? 'active' : ''}`}
+            onClick={(e) => {
+              // Prevent navigation if already on host creation page
+              if (location.pathname === ROUTES.HOST_CREATION) {
+                e.preventDefault();
+              }
+            }}
+          >
+            <span className="nav-icon">👤</span>
+            {sidebarOpen && <span className="nav-text">Host Creation</span>}
+          </Link>
+          <Link 
+            to={ROUTES.USER_HISTORY} 
+            className={`nav-item ${location.pathname === ROUTES.USER_HISTORY ? 'active' : ''}`}
+            onClick={(e) => {
+              // Prevent navigation if already on user history page
+              if (location.pathname === ROUTES.USER_HISTORY) {
+                e.preventDefault();
+              }
+            }}
+          >
+            <span className="nav-icon">📜</span>
+            {sidebarOpen && <span className="nav-text">User History</span>}
           </Link>
         </nav>
 
@@ -197,7 +253,24 @@ const Dashboard: React.FC = () => {
             </p>
           </div>
 
+          {/* Tabs */}
+          <div className="dashboard-tabs">
+            <button
+              className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
+              onClick={() => setActiveTab('users')}
+            >
+              Users
+            </button>
+            <button
+              className={`tab-button ${activeTab === 'hostStats' ? 'active' : ''}`}
+              onClick={() => setActiveTab('hostStats')}
+            >
+              Host Statistics
+            </button>
+          </div>
+
           {/* Users List Card */}
+          {activeTab === 'users' && (
           <div className="dashboard-card">
             <div className="card-header-with-filters">
               <h2 className="card-title">Users</h2>
@@ -338,7 +411,21 @@ const Dashboard: React.FC = () => {
                           </div>
                           <div className="user-email">
                             <span className="user-label">Email:</span>
-                            <span className="user-value">{adminUser.email}</span>
+                            <span className="user-value">
+                              {adminUser.email}
+                              <button
+                                type="button"
+                                className="copy-email-btn"
+                                onClick={(e) => handleCopyEmail(adminUser.email, e)}
+                                title="Copy email"
+                                aria-label="Copy email"
+                              >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                              </button>
+                            </span>
                           </div>
                           <div className="user-balance">
                             <span className="user-label">Balance GC:</span>
@@ -382,6 +469,37 @@ const Dashboard: React.FC = () => {
                     );
                   })}
                 </div>
+                {/* Pagination Controls */}
+                {pagination && pagination.totalPages > 1 && (
+                  <div className="pagination-controls">
+                    <button
+                      className="pagination-button"
+                      onClick={handlePreviousPage}
+                      disabled={currentPage === 1 || usersLoading}
+                      aria-label="Previous page"
+                    >
+                      ← Previous
+                    </button>
+                    <div className="pagination-info">
+                      <span className="pagination-text">
+                        Page {currentPage} of {pagination.totalPages}
+                      </span>
+                      {pagination.total > 0 && (
+                        <span className="pagination-total">
+                          (Showing {((currentPage - 1) * 10) + 1}-{Math.min(currentPage * 10, pagination.total)} of {pagination.total})
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      className="pagination-button"
+                      onClick={handleNextPage}
+                      disabled={currentPage >= pagination.totalPages || usersLoading}
+                      aria-label="Next page"
+                    >
+                      Next →
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="users-empty">
@@ -389,6 +507,156 @@ const Dashboard: React.FC = () => {
               </div>
             )}
           </div>
+          )}
+
+          {/* Host Statistics Card */}
+          {activeTab === 'hostStats' && (
+          <div className="dashboard-card">
+            <div className="card-header-with-filters">
+              <h2 className="card-title">Host Statistics</h2>
+              <div className="host-stats-summary">
+                <span className="stat-item">Total Hosts: {totalHosts}</span>
+                <span className="stat-item">Total Lobbies: {totalLobbies}</span>
+              </div>
+            </div>
+            
+            {/* Filters */}
+            <div className="host-stats-filters">
+              <div className="filter-group">
+                <label className="filter-label">Date (YYYY-MM-DD)</label>
+                <input
+                  type="date"
+                  className="filter-input"
+                  value={hostStatsFilters.date || ''}
+                  onChange={(e) => handleHostStatsFilterChange('date', e.target.value)}
+                  disabled={hostStatsLoading}
+                />
+              </div>
+              <div className="filter-group">
+                <label className="filter-label">From Date (YYYY-MM-DD)</label>
+                <input
+                  type="date"
+                  className="filter-input"
+                  value={hostStatsFilters.fromDate || ''}
+                  onChange={(e) => handleHostStatsFilterChange('fromDate', e.target.value)}
+                  disabled={hostStatsLoading}
+                />
+              </div>
+              <div className="filter-group">
+                <label className="filter-label">To Date (YYYY-MM-DD)</label>
+                <input
+                  type="date"
+                  className="filter-input"
+                  value={hostStatsFilters.toDate || ''}
+                  onChange={(e) => handleHostStatsFilterChange('toDate', e.target.value)}
+                  disabled={hostStatsLoading}
+                />
+              </div>
+              <div className="filter-group">
+                <label className="filter-label">Host ID</label>
+                <input
+                  type="text"
+                  className="filter-input"
+                  placeholder="Enter host ID"
+                  value={hostStatsFilters.hostId || ''}
+                  onChange={(e) => handleHostStatsFilterChange('hostId', e.target.value)}
+                  disabled={hostStatsLoading}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSearchHostStats();
+                    }
+                  }}
+                />
+              </div>
+              <div className="filter-actions">
+                <button
+                  className="search-filters-button"
+                  onClick={handleSearchHostStats}
+                  disabled={hostStatsLoading}
+                >
+                  {hostStatsLoading ? 'Searching...' : '🔍 Search'}
+                </button>
+                <button
+                  className="clear-filters-button"
+                  onClick={handleClearHostStatsFilters}
+                  disabled={hostStatsLoading}
+                >
+                  Clear Filters
+                </button>
+              </div>
+            </div>
+
+            {hostStatsLoading ? (
+              <div className="host-stats-loading">
+                <p>Loading host statistics...</p>
+              </div>
+            ) : hostStatsError ? (
+              <div className="host-stats-error">
+                <p>{hostStatsError}</p>
+              </div>
+            ) : hostStatistics.length > 0 ? (
+              <div className="host-stats-list">
+                {hostStatistics.map((host) => (
+                  <div key={host.hostId} className="host-stat-card">
+                    <div className="host-stat-header">
+                      <div className="host-stat-info">
+                        <h3 className="host-stat-name">{host.name}</h3>
+                        <p className="host-stat-email">{host.email}</p>
+                        <p className="host-stat-id">ID: {host.hostId}</p>
+                      </div>
+                      <div className="host-stat-total">
+                        <span className="total-label">Total Lobbies</span>
+                        <span className="total-value">{host.totalLobbies}</span>
+                      </div>
+                    </div>
+                    
+                    {Object.keys(host.timeSlotSummary || {}).length > 0 && (
+                      <div className="host-stat-timeslots">
+                        <h4 className="timeslot-title">Time Slot Summary</h4>
+                        <div className="timeslot-grid">
+                          {Object.entries(host.timeSlotSummary).map(([timeSlot, count]) => (
+                            <div key={timeSlot} className="timeslot-item">
+                              <span className="timeslot-time">{timeSlot}</span>
+                              <span className="timeslot-count">{count}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {host.dailyRecords && host.dailyRecords.length > 0 && (
+                      <div className="host-stat-daily">
+                        <h4 className="daily-title">Daily Records</h4>
+                        <div className="daily-records-list">
+                          {host.dailyRecords.map((record, idx) => (
+                            <div key={idx} className="daily-record-item">
+                              <span className="daily-date">{record.date}</span>
+                              <span className="daily-lobbies">{record.lobbies} lobbies</span>
+                              {record.tournaments && record.tournaments.length > 0 && (
+                                <div className="daily-tournaments">
+                                  {record.tournaments.map((tournament, tIdx) => (
+                                    <div key={tIdx} className="tournament-item">
+                                      <span>{tournament.game || 'N/A'}</span>
+                                      <span>{tournament.startTime}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="host-stats-empty">
+                <p>No host statistics found.</p>
+              </div>
+            )}
+          </div>
+          )}
         </div>
       </main>
 
@@ -416,7 +684,21 @@ const Dashboard: React.FC = () => {
               </div>
               <div className="user-detail-item">
                 <span className="detail-label">Email:</span>
-                <span className="detail-value">{selectedUser.email}</span>
+                <span className="detail-value">
+                  {selectedUser.email}
+                  <button
+                    type="button"
+                    className="copy-email-btn"
+                    onClick={(e) => handleCopyEmail(selectedUser.email, e)}
+                    title="Copy email"
+                    aria-label="Copy email"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                  </button>
+                </span>
               </div>
               <div className="user-detail-item">
                 <span className="detail-label">Role:</span>

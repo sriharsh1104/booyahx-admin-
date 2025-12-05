@@ -15,6 +15,11 @@ export const useLoginLogic = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -81,6 +86,8 @@ export const useLoginLogic = () => {
     formData,
     loading,
     error,
+    showPassword,
+    togglePasswordVisibility,
     handleInputChange,
     handleSubmit,
   };

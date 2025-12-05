@@ -84,6 +84,94 @@ export interface AssignHostResponse {
   };
 }
 
+<<<<<<< HEAD
+=======
+export interface DailyRecord {
+  date: string;
+  lobbies: number;
+  tournaments?: Array<{
+    tournamentId: string;
+    date: string;
+    startTime: string;
+    game?: string;
+    mode?: string;
+    subMode?: string;
+  }>;
+}
+
+export interface HostStatistics {
+  hostId: string;
+  name: string;
+  email: string;
+  totalLobbies: number;
+  timeSlotSummary: Record<string, number>;
+  dailyRecords: DailyRecord[];
+}
+
+export interface HostStatisticsResponse {
+  status: number;
+  success: boolean;
+  message: string;
+  data: {
+    totalHosts: number;
+    totalLobbies: number;
+    filters: {
+      date?: string;
+      fromDate?: string;
+      toDate?: string;
+      hostId?: string;
+    };
+    hosts: HostStatistics[];
+  };
+}
+
+export interface GetHostStatisticsParams {
+  date?: string; // YYYY-MM-DD
+  fromDate?: string; // YYYY-MM-DD
+  toDate?: string; // YYYY-MM-DD
+  hostId?: string;
+}
+
+export interface CreateHostRequest {
+  email: string;
+  name: string;
+  password: string;
+}
+
+export interface CreateHostResponse {
+  status: number;
+  success: boolean;
+  message: string;
+  data?: {
+    hostId?: string;
+    email?: string;
+    name?: string;
+  };
+}
+
+export interface Host {
+  _id?: string;
+  hostId?: string;
+  email: string;
+  name: string;
+  role?: string;
+  isEmailVerified?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  totalLobbies?: number;
+}
+
+export interface HostsListAllResponse {
+  status: number;
+  success: boolean;
+  message: string;
+  data: {
+    hosts: Host[];
+    total?: number;
+  };
+}
+
+>>>>>>> e7c86d30f5ac6a092082c16d393c32a1b4ba4b64
 export const hostApplicationsApi = {
   /**
    * Get host applications for a tournament (Admin only)
@@ -163,5 +251,68 @@ export const hostApplicationsApi = {
     );
     return response.data;
   },
+<<<<<<< HEAD
+=======
+
+  /**
+   * Get host statistics and daily records (Admin only)
+   * @param params - Query parameters for filtering statistics
+   */
+  getHostStatistics: async (params?: GetHostStatisticsParams): Promise<HostStatisticsResponse['data']> => {
+    const queryParams: Record<string, string> = {};
+    
+    if (params?.date) {
+      queryParams.date = params.date;
+    }
+    if (params?.fromDate) {
+      queryParams.fromDate = params.fromDate;
+    }
+    if (params?.toDate) {
+      queryParams.toDate = params.toDate;
+    }
+    if (params?.hostId) {
+      queryParams.hostId = params.hostId;
+    }
+
+    const response = await apiClient.get<HostStatisticsResponse>(
+      '/api/admin/hosts/statistics',
+      {
+        params: queryParams,
+      }
+    );
+
+    return response.data.data;
+  },
+
+  /**
+   * Create a new host account (Admin only)
+   * @param data - Host creation data (email, name, password)
+   */
+  createHost: async (data: CreateHostRequest): Promise<CreateHostResponse> => {
+    const response = await apiClient.post<CreateHostResponse>(
+      '/api/admin/hosts/create',
+      data
+    );
+    return response.data;
+  },
+
+  /**
+   * Get all hosts (Admin only)
+   */
+  getAllHosts: async (): Promise<Host[]> => {
+    const response = await apiClient.get<HostsListAllResponse>(
+      '/api/admin/hosts'
+    );
+    
+    if (response.data?.data?.hosts && Array.isArray(response.data.data.hosts)) {
+      return response.data.data.hosts.map(host => ({
+        ...host,
+        hostId: host._id || host.hostId,
+      }));
+    }
+    
+    return [];
+  },
+>>>>>>> e7c86d30f5ac6a092082c16d393c32a1b4ba4b64
 };
 

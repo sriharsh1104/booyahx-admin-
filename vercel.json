@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://api.gaminghuballday.buzz/api/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

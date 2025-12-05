@@ -12,9 +12,14 @@ export const useGenerateLobbyPageLogic = () => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showGenerateLobbyModal, setShowGenerateLobbyModal] = useState(false);
+  // Get current date in YYYY-MM-DD format
+  const getCurrentDate = () => {
+    return new Date().toISOString().split('T')[0];
+  };
+
   const [tournamentStatus, setTournamentStatus] = useState<'upcoming' | 'live' | 'completed'>('upcoming');
   const [subModeFilter, setSubModeFilter] = useState<'all' | 'solo' | 'duo' | 'squad'>('all');
-  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [selectedDate, setSelectedDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [filteredTournaments, setFilteredTournaments] = useState<Tournament[]>([]);
   const [tournamentsLoading, setTournamentsLoading] = useState(false);
@@ -56,10 +61,12 @@ export const useGenerateLobbyPageLogic = () => {
     loadUser();
   }, [navigate, isAuthenticated, user, dispatch]);
 
-  // Get current date in YYYY-MM-DD format
-  const getCurrentDate = () => {
-    return new Date().toISOString().split('T')[0];
-  };
+  // Set default date when tournamentStatus is 'upcoming' and selectedDate is empty
+  useEffect(() => {
+    if (tournamentStatus === 'upcoming' && !selectedDate) {
+      setSelectedDate(getCurrentDate());
+    }
+  }, [tournamentStatus, selectedDate]);
 
   const toggleSidebar = () => {
     setSidebarOpen((prev) => !prev);

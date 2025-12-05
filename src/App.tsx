@@ -11,6 +11,12 @@ const Dashboard = lazy(() => import('@components/Dashboard/Dashboard'));
 const HealthStatus = lazy(() => import('@components/HealthStatus/HealthStatus'));
 const Profile = lazy(() => import('@components/Profile/Profile'));
 const GenerateLobbyPage = lazy(() => import('@components/GenerateLobbyPage/GenerateLobbyPage'));
+<<<<<<< HEAD
+=======
+const TopUpPage = lazy(() => import('@components/TopUpPage/TopUpPage'));
+const HostCreationPage = lazy(() => import('@components/HostCreationPage/HostCreationPage'));
+const UserHistoryPage = lazy(() => import('@components/UserHistoryPage/UserHistoryPage'));
+>>>>>>> e7c86d30f5ac6a092082c16d393c32a1b4ba4b64
 
 function App() {
   return (
@@ -51,6 +57,33 @@ function App() {
               </ProtectedRoute>
             }
           />
+<<<<<<< HEAD
+=======
+          <Route
+            path={ROUTES.TOP_UP}
+            element={
+              <ProtectedRoute>
+                <TopUpPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTES.HOST_CREATION}
+            element={
+              <ProtectedRoute>
+                <HostCreationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTES.USER_HISTORY}
+            element={
+              <ProtectedRoute>
+                <UserHistoryPage />
+              </ProtectedRoute>
+            }
+          />
+>>>>>>> e7c86d30f5ac6a092082c16d393c32a1b4ba4b64
           <Route path={ROUTES.HOME} element={<Navigate to={ROUTES.DASHBOARD} replace />} />
           <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
         </Routes>

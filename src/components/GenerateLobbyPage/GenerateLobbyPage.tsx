@@ -95,6 +95,42 @@ const GenerateLobbyPage: React.FC = () => {
             <span className="nav-icon">🎮</span>
             {sidebarOpen && <span className="nav-text">Generate Lobby</span>}
           </Link>
+          <Link 
+            to={ROUTES.TOP_UP} 
+            className={`nav-item ${location.pathname === ROUTES.TOP_UP ? 'active' : ''}`}
+            onClick={(e) => {
+              if (location.pathname === ROUTES.TOP_UP) {
+                e.preventDefault();
+              }
+            }}
+          >
+            <span className="nav-icon">💰</span>
+            {sidebarOpen && <span className="nav-text">Top Up</span>}
+          </Link>
+          <Link 
+            to={ROUTES.HOST_CREATION} 
+            className={`nav-item ${location.pathname === ROUTES.HOST_CREATION ? 'active' : ''}`}
+            onClick={(e) => {
+              if (location.pathname === ROUTES.HOST_CREATION) {
+                e.preventDefault();
+              }
+            }}
+          >
+            <span className="nav-icon">👤</span>
+            {sidebarOpen && <span className="nav-text">Host Creation</span>}
+          </Link>
+          <Link 
+            to={ROUTES.USER_HISTORY} 
+            className={`nav-item ${location.pathname === ROUTES.USER_HISTORY ? 'active' : ''}`}
+            onClick={(e) => {
+              if (location.pathname === ROUTES.USER_HISTORY) {
+                e.preventDefault();
+              }
+            }}
+          >
+            <span className="nav-icon">📜</span>
+            {sidebarOpen && <span className="nav-text">User History</span>}
+          </Link>
         </nav>
 
         <div className="sidebar-footer">
@@ -205,24 +241,27 @@ const GenerateLobbyPage: React.FC = () => {
             
             <div className="filter-group">
               <label className="filter-label">Date:</label>
-              <input
-                type="date"
-                className="date-filter-input"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                disabled={tournamentsLoading}
-                min={new Date().toISOString().split('T')[0]}
-              />
-              {selectedDate && (
-                <button
-                  className="clear-date-button"
-                  onClick={() => setSelectedDate('')}
+              <div className="date-input-wrapper">
+                <input
+                  type="date"
+                  className="date-filter-input"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
                   disabled={tournamentsLoading}
-                  title="Clear date filter"
-                >
-                  ✕
-                </button>
-              )}
+                  min={new Date().toISOString().split('T')[0]}
+                />
+                {selectedDate && (
+                  <button
+                    className="clear-date-button"
+                    onClick={() => setSelectedDate('')}
+                    disabled={tournamentsLoading}
+                    title="Clear date filter"
+                    aria-label="Clear date filter"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
             </div>
           </div>
           {tournamentsLoading ? (

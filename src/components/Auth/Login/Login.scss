@@ -336,6 +336,53 @@
   }
 }
 
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input {
+  padding-right: 50px;
+}
+
+.password-toggle-button {
+  position: absolute;
+  right: $spacing-md;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: $spacing-xs;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+  border-radius: $border-radius-sm;
+  z-index: 1;
+
+  &:hover:not(:disabled) {
+    color: var(--primary-color);
+    background: rgba(var(--primary-color-rgb), 0.1);
+    transform: scale(1.1);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+  }
+}
+
 .error-message {
   padding: $spacing-md;
   background: linear-gradient(135deg, rgba(var(--error-color), 0.15) 0%, rgba(var(--error-color), 0.1) 100%);
